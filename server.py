@@ -34,27 +34,58 @@ ALLOWED_FORMATS = {
 }
 
 
-def _get_monetag_verify_content() -> str:
-    env_val = os.environ.get("MONETAG_VERIFY", "").strip()
-    if env_val:
-        return env_val
+import re
+
+def _clean_verify_meta(raw: str) -> str:
+    txt = str(raw or "").strip()
+    if not txt:
+        return ""
+    m = re.search(r'content\s*=\s*["\']([^"\']+)["\']', txt, flags=re.IGNORECASE)
+    return m.group(1).strip() if m else re.sub(r'[<>"\']', '', txt).strip()
+
+
+def _load_server_ads_config() -> dict:
+    cfg = {}
     if ADS_CONFIG_FILE.exists():
         try:
-            cfg = json.loads(ADS_CONFIG_FILE.read_text(encoding="utf-8"))
-            return str(((cfg or {}).get("monetag") or {}).get("verifyMeta", "")).strip()
+            data = json.loads(ADS_CONFIG_FILE.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                cfg = data
         except Exception:
-            pass
-    return ""
+            cfg = {}
+    monetag = cfg.get("monetag") if isinstance(cfg.get("monetag"), dict) else {}
+    if os.environ.get("MONETAG_VERIFY"):
+        monetag["verifyMeta"] = _clean_verify_meta(os.environ.get("MONETAG_VERIFY", ""))
+    if os.environ.get("MONETAG_SMARTLINK"):
+        monetag["smartLink"] = os.environ.get("MONETAG_SMARTLINK", "").strip()
+    if os.environ.get("MONETAG_MULTITAG"):
+        monetag["multiTag"] = os.environ.get("MONETAG_MULTITAG", "").strip()
+    if monetag:
+        cfg["monetag"] = monetag
+    return cfg
 
 
 @app.get("/")
 async def serve_frontend():
     if INDEX_FILE.exists():
         html = INDEX_FILE.read_text(encoding="utf-8")
-        verify_code = _get_monetag_verify_content()
-        if verify_code and 'name="monetag"' not in html:
-            meta_tag = f'  <meta name="monetag" content="{verify_code}" />\n'
-            html = html.replace("<head>", "<head>\n" + meta_tag, 1)
+        cfg = _load_server_ads_config()
+        monetag = cfg.get("monetag") if isinstance(cfg.get("monetag"), dict) else {}
+        if monetag.get("enabled", True) is not False:
+            head_inject = []
+            head_end = html.lower().find("</head>")
+            head_section = html[:head_end] if head_end != -1 else html[:1000]
+            verify_code = _clean_verify_meta(monetag.get("verifyMeta", ""))
+            if verify_code and 'name="monetag"' not in head_section:
+                head_inject.append(f'  <meta name="monetag" content="{verify_code}" />')
+            multi_tag = str(monetag.get("multiTag", "")).strip()
+            if multi_tag:
+                head_inject.append("  " + multi_tag)
+            extra_tags = str(monetag.get("extraTags", "")).strip()
+            if extra_tags:
+                head_inject.append("  " + extra_tags)
+            if head_inject:
+                html = html.replace("<head>", "<head>\n" + "\n".join(head_inject) + "\n", 1)
         return HTMLResponse(content=html)
     return {"status": "ok", "message": "Tìm Nhạc Backend is running"}
 
@@ -170,12 +201,8 @@ async def convert_audio(
 
 @app.get("/api/ads-config")
 async def get_ads_config():
-    if ADS_CONFIG_FILE.exists():
-        try:
-            return {"status": "ok", "config": json.loads(ADS_CONFIG_FILE.read_text(encoding="utf-8"))}
-        except Exception:
-            pass
-    return {"status": "ok", "config": None}
+    cfg = _load_server_ads_config()
+    return {"status": "ok", "config": cfg if cfg else None}
 
 
 @app.post("/api/ads-config")

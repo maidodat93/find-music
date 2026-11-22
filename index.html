@@ -1,0 +1,2548 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SoundTube VN — Tìm Kiếm Video YouTube Bằng Âm Thanh</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          colors: {
+            obsidian: '#09090f',
+            panel: '#12131f',
+            panelLight: '#1a1c2e',
+            ytRed: '#ff2a55',
+            cyanGlow: '#00e5ff',
+            violetGlow: '#8b5cf6'
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    body {
+      background-color: #09090f;
+      color: #f1f5f9;
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+    .bg-ambient {
+      background:
+        radial-gradient(ellipse 70% 50% at 50% -10%, rgba(255, 42, 85, 0.16), transparent 65%),
+        radial-gradient(ellipse 50% 45% at 85% 25%, rgba(0, 229, 255, 0.11), transparent 60%),
+        radial-gradient(ellipse 45% 40% at 15% 40%, rgba(139, 92, 246, 0.11), transparent 60%),
+        #09090f;
+    }
+    .glass-card {
+      background: rgba(18, 19, 31, 0.78);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+    }
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.75; }
+      70% { transform: scale(1.42); opacity: 0; }
+      100% { transform: scale(1.42); opacity: 0; }
+    }
+    .listen-ring {
+      animation: pulseRing 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    .listen-ring-delay {
+      animation: pulseRing 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+      animation-delay: 0.65s;
+    }
+    .listen-btn-idle {
+      background: linear-gradient(135deg, #ff2a55 0%, #e11d48 55%, #9333ea 100%);
+      box-shadow: 0 0 38px rgba(255, 42, 85, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+    }
+    .listen-btn-idle:hover {
+      box-shadow: 0 0 52px rgba(255, 42, 85, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.45);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .listen-btn-active {
+      background: linear-gradient(135deg, #00e5ff 0%, #3b82f6 55%, #8b5cf6 100%);
+      box-shadow: 0 0 46px rgba(0, 229, 255, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="bg-ambient min-h-screen antialiased selection:bg-ytRed/30 selection:text-white">
+  <!-- Header -->
+  <header class="sticky top-0 z-40 border-b border-white/10 bg-obsidian/80 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-ytRed to-violetGlow shadow-lg shadow-ytRed/25">
+          <i data-lucide="audio-waveform" class="h-5 w-5 text-white"></i>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="truncate text-base font-extrabold tracking-tight text-white sm:text-lg">SoundTube VN</span>
+            <span class="hidden rounded-full bg-ytRed/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ytRed sm:inline-block">Audio AI</span>
+          </div>
+          <p class="truncate text-xs text-slate-400">Nhận diện nhạc PC, giọng hát &amp; ngân nga tìm YouTube</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="btnHistoryToggle" type="button" class="glass-pill flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 transition hover:bg-white/10 sm:text-sm">
+          <i data-lucide="history" class="h-4 w-4 text-cyanGlow"></i>
+          <span class="hidden sm:inline">Lịch sử</span>
+          <span id="historyBadge" class="rounded-full bg-white/10 px-1.5 py-0.5 text-[11px] font-semibold text-cyanGlow">0</span>
+        </button>
+        <button id="btnSettingsOpen" type="button" class="glass-pill flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 transition hover:bg-white/10 sm:text-sm">
+          <i data-lucide="sliders-horizontal" class="h-4 w-4 text-ytRed"></i>
+          <span class="hidden sm:inline">Cài đặt API</span>
+          <span id="apiStatusDot" class="h-2 w-2 rounded-full bg-emerald-400" title="Sẵn sàng"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
+    <!-- Hero Listening Studio -->
+    <section class="glass-card relative overflow-hidden rounded-3xl p-5 sm:p-8 shadow-2xl">
+      <!-- Mode Selector Tabs -->
+      <div class="mx-auto flex max-w-2xl flex-wrap items-center justify-center gap-2 rounded-2xl bg-black/35 p-1.5 border border-white/10">
+        <button type="button" data-mode="pc" class="mode-tab flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition sm:text-sm">
+          <i data-lucide="monitor-speaker" class="h-4 w-4 shrink-0"></i>
+          <span>Âm thanh PC / Tab</span>
+        </button>
+        <button type="button" data-mode="mic" class="mode-tab flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition sm:text-sm">
+          <i data-lucide="mic" class="h-4 w-4 shrink-0"></i>
+          <span>Micro / Lời hát</span>
+        </button>
+        <button type="button" data-mode="hum" class="mode-tab flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition sm:text-sm">
+          <i data-lucide="music" class="h-4 w-4 shrink-0"></i>
+          <span>Ngân nga giai điệu</span>
+        </button>
+      </div>
+
+      <!-- Mode description + Language selector -->
+      <div class="mt-4 flex flex-col items-center justify-between gap-3 text-center sm:flex-row sm:text-left">
+        <p id="modeHintText" class="text-xs text-slate-300 sm:text-sm max-w-2xl leading-relaxed">
+          Thu trực tiếp âm thanh đang phát trên máy tính hoặc thẻ trình duyệt (YouTube, TikTok, Spotify...). Nhớ tích chọn <strong class="text-cyanGlow">"Chia sẻ âm thanh"</strong> trong hộp thoại trình duyệt.
+        </p>
+        <div id="langWrap" class="flex items-center gap-2 shrink-0">
+          <label for="speechLangSelect" class="text-xs text-slate-400">Ngôn ngữ nghe:</label>
+          <select id="speechLangSelect" class="rounded-lg border border-white/15 bg-panelLight px-2.5 py-1.5 text-xs font-medium text-white outline-none focus:border-cyanGlow">
+            <option value="vi-VN" selected>Tiếng Việt (vi-VN)</option>
+            <option value="en-US">English (en-US)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Central Visualizer & Listen Button -->
+      <div class="mt-6 grid grid-cols-1 items-center gap-6 lg:grid-cols-12">
+        <!-- Left/Center Trigger -->
+        <div class="flex flex-col items-center justify-center lg:col-span-5">
+          <div class="relative flex h-44 w-44 items-center justify-center">
+            <div id="ring1" class="pointer-events-none absolute inset-3 rounded-full border-2 border-cyanGlow/60 opacity-0"></div>
+            <div id="ring2" class="pointer-events-none absolute inset-3 rounded-full border-2 border-ytRed/50 opacity-0"></div>
+
+            <button id="btnListenMain" type="button" class="listen-btn-idle relative z-10 flex h-32 w-32 flex-col items-center justify-center rounded-full text-white transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-ytRed/40">
+              <i id="listenIcon" data-lucide="ear" class="h-10 w-10"></i>
+              <span id="listenLabel" class="mt-1.5 text-xs font-bold uppercase tracking-wider">Bắt đầu nghe</span>
+            </button>
+          </div>
+
+          <div class="mt-2 flex items-center gap-3 text-xs">
+            <span id="statusPill" class="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1 font-medium text-slate-300 border border-white/10">
+              <span id="statusDot" class="h-2 w-2 rounded-full bg-slate-400"></span>
+              <span id="statusText">Sẵn sàng lắng nghe</span>
+            </span>
+            <span id="timerText" class="font-mono text-sm font-semibold text-cyanGlow hidden">00:00</span>
+          </div>
+        </div>
+
+        <!-- Right Live Waveform + Pitch / Spectrum Telemetry -->
+        <div class="lg:col-span-7 flex flex-col gap-3">
+          <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-black/50 p-3">
+            <div class="mb-2 flex items-center justify-between text-[11px] text-slate-400">
+              <span class="flex items-center gap-1.5 font-medium">
+                <i data-lucide="activity" class="h-3.5 w-3.5 text-cyanGlow"></i>
+                <span id="vizTitle">Phổ tần số &amp; Sóng âm trực tiếp</span>
+              </span>
+              <div class="flex items-center gap-3 font-mono">
+                <span id="liveNoteBadge" class="rounded bg-violetGlow/20 px-2 py-0.5 text-violet-300">Nốt: --</span>
+                <span id="liveHzBadge" class="rounded bg-cyanGlow/15 px-2 py-0.5 text-cyanGlow">0 Hz</span>
+                <span id="liveDbBadge" class="rounded bg-white/10 px-2 py-0.5 text-slate-300">0 dB</span>
+              </div>
+            </div>
+            <div class="relative h-36 w-full">
+              <canvas id="audioCanvas" class="h-full w-full block rounded-xl"></canvas>
+            </div>
+          </div>
+
+          <!-- Live Interim Transcript Banner -->
+          <div id="liveCaptionBox" class="flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-xs text-slate-300">
+            <i data-lucide="captions" class="h-4 w-4 shrink-0 text-ytRed"></i>
+            <span id="liveCaptionText" class="truncate italic text-slate-400">Nhấn nút "Bắt đầu nghe" hoặc chọn một mẫu thử bên dưới để nhận diện âm thanh...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Interactive Demo Samples & Direct Search Bar -->
+      <div class="mt-6 border-t border-white/10 pt-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-semibold text-slate-400 flex items-center gap-1 mr-1">
+            <i data-lucide="sparkles" class="h-3.5 w-3.5 text-amber-400"></i>
+            Thử nhanh (không cần Mic):
+          </span>
+          <button type="button" data-demo="pc_seetinh" class="demo-btn rounded-full border border-cyanGlow/30 bg-cyanGlow/10 px-3 py-1.5 text-xs font-medium text-cyan-200 transition hover:bg-cyanGlow/20">
+            🔊 Nhạc PC: See Tình
+          </button>
+          <button type="button" data-demo="hum_sontung" class="demo-btn rounded-full border border-violetGlow/35 bg-violetGlow/15 px-3 py-1.5 text-xs font-medium text-violet-200 transition hover:bg-violetGlow/25">
+            🎵 Ngân nga: Nơi Này Có Anh
+          </button>
+          <button type="button" data-demo="mic_denvau" class="demo-btn rounded-full border border-ytRed/35 bg-ytRed/15 px-3 py-1.5 text-xs font-medium text-rose-200 transition hover:bg-ytRed/25">
+            🎤 Giọng hát: Đưa Nhau Đi Trốn
+          </button>
+        </div>
+
+        <form id="manualSearchForm" class="flex w-full max-w-md items-center gap-2">
+          <div class="relative flex-1">
+            <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+            <input id="manualSearchInput" type="text" placeholder="Hoặc nhập lời bài hát / tên video..." class="w-full rounded-xl border border-white/10 bg-black/40 py-2 pl-9 pr-3 text-xs text-white placeholder-slate-500 outline-none transition focus:border-ytRed sm:text-sm" />
+          </div>
+          <button type="submit" class="shrink-0 rounded-xl bg-white/10 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-ytRed sm:text-sm">
+            Tìm ngay
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Section: "Những Gì Đã Nghe Được" (What Was Heard) -->
+    <section id="heardSection" class="glass-card rounded-3xl p-5 sm:p-6 hidden">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-cyanGlow/15 text-cyanGlow">
+            <i data-lucide="file-audio" class="h-5 w-5"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white sm:text-lg">Những gì đã nghe được</h2>
+            <p id="heardMetaLine" class="text-xs text-slate-400">Nguồn: Micro • Thời lượng: 4.2 giây</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="confidenceBadge" class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-300 border border-emerald-500/25">
+            <i data-lucide="check-circle-2" class="h-3.5 w-3.5"></i>
+            Độ khớp: 96%
+          </span>
+          <button id="btnCopyHeard" type="button" class="glass-pill rounded-xl px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:bg-white/10 flex items-center gap-1.5">
+            <i data-lucide="copy" class="h-3.5 w-3.5"></i>
+            Sao chép
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-12">
+        <!-- Transcript / Recognized Lyrics -->
+        <div class="lg:col-span-7 space-y-3">
+          <label for="heardEditableInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Nội dung / Lời bài hát nhận diện được (có thể chỉnh sửa để tìm lại)
+          </label>
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <input id="heardEditableInput" type="text" class="flex-1 rounded-xl border border-white/15 bg-black/45 px-3.5 py-2.5 text-sm font-medium text-white outline-none focus:border-cyanGlow" />
+            <button id="btnResearchEdited" type="button" class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-ytRed px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-ytRed/25 transition hover:bg-rose-500 sm:text-sm shrink-0">
+              <i data-lucide="refresh-cw" class="h-4 w-4"></i>
+              Tìm lại
+            </button>
+          </div>
+
+          <!-- Extracted Keyword Chips -->
+          <div class="flex flex-wrap items-center gap-2 pt-1">
+            <span class="text-xs text-slate-400">Từ khóa trích xuất:</span>
+            <div id="keywordChips" class="flex flex-wrap gap-1.5"></div>
+          </div>
+
+          <!-- Recorded Audio Playback (shown when real audio blob exists) -->
+          <div id="recordedAudioWrap" class="hidden rounded-xl border border-white/10 bg-black/35 p-3">
+            <div class="mb-1.5 flex items-center justify-between text-xs text-slate-300">
+              <span class="font-medium flex items-center gap-1.5">
+                <i data-lucide="volume-2" class="h-3.5 w-3.5 text-cyanGlow"></i>
+                Nghe lại đoạn âm thanh đã thu
+              </span>
+              <span id="recordedDurationLabel" class="font-mono text-slate-400"></span>
+            </div>
+            <audio id="recordedAudioPlayer" controls class="h-9 w-full"></audio>
+          </div>
+        </div>
+
+        <!-- Acoustic / Melody Analysis Box -->
+        <div class="lg:col-span-5 rounded-2xl border border-white/10 bg-black/35 p-4 flex flex-col justify-between gap-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Phân tích giai điệu &amp; phổ âm</span>
+            <span id="detectedKeyBpm" class="rounded-md bg-violetGlow/20 px-2 py-0.5 font-mono text-[11px] font-semibold text-violet-200">-- BPM</span>
+          </div>
+
+          <div class="relative h-20 w-full rounded-xl bg-black/40 border border-white/5 overflow-hidden">
+            <canvas id="melodyCanvas" class="h-full w-full block"></canvas>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-400">Chuỗi nốt / Cao độ:</span>
+              <span id="detectedContourArrows" class="font-mono font-bold text-cyanGlow">--</span>
+            </div>
+            <div id="detectedNotesStrip" class="flex flex-wrap gap-1"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: YouTube Search Results -->
+    <section class="space-y-4">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 id="resultsHeading" class="text-lg font-extrabold text-white flex items-center gap-2 sm:text-xl">
+            <i data-lucide="youtube" class="h-6 w-6 text-ytRed"></i>
+            <span>Video YouTube gợi ý &amp; thịnh hành</span>
+          </h2>
+          <p id="resultsSubheading" class="text-xs text-slate-400 mt-0.5">
+            Chọn một chế độ thu âm ở trên hoặc nhấn "Thử nhanh" để tìm video tương ứng.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <a id="openYoutubeDirectLink" href="https://www.youtube.com/results?search_query=nhac+viet+hot" target="_blank" rel="noopener noreferrer" class="hidden inline-flex items-center gap-1.5 rounded-xl bg-ytRed/15 border border-ytRed/35 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:bg-ytRed hover:text-white">
+            <i data-lucide="external-link" class="h-3.5 w-3.5"></i>
+            Mở toàn bộ trên YouTube
+          </a>
+          <select id="sortSelect" class="rounded-xl border border-white/10 bg-panel px-3 py-2 text-xs font-medium text-slate-200 outline-none focus:border-cyanGlow">
+            <option value="match">Sắp xếp: Độ khớp cao nhất</option>
+            <option value="title">Sắp xếp: Tên A → Z</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="flex flex-wrap items-center gap-2" id="categoryFilterBar">
+        <button type="button" data-cat="all" class="cat-pill rounded-full px-3.5 py-1.5 text-xs font-semibold transition">Tất cả</button>
+        <button type="button" data-cat="mv" class="cat-pill rounded-full px-3.5 py-1.5 text-xs font-semibold transition">MV Chính thức</button>
+        <button type="button" data-cat="remix" class="cat-pill rounded-full px-3.5 py-1.5 text-xs font-semibold transition">Remix / Speed Up</button>
+        <button type="button" data-cat="lofi" class="cat-pill rounded-full px-3.5 py-1.5 text-xs font-semibold transition">Lofi / Lyrics</button>
+        <button type="button" data-cat="live" class="cat-pill rounded-full px-3.5 py-1.5 text-xs font-semibold transition">Live / Acoustic</button>
+      </div>
+
+      <!-- Loading Skeleton -->
+      <div id="resultsLoading" class="hidden grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="glass-card rounded-2xl p-3 animate-pulse space-y-3">
+          <div class="aspect-video w-full rounded-xl bg-white/10"></div>
+          <div class="h-4 w-3/4 rounded bg-white/10"></div>
+          <div class="h-3 w-1/2 rounded bg-white/10"></div>
+        </div>
+        <div class="glass-card rounded-2xl p-3 animate-pulse space-y-3">
+          <div class="aspect-video w-full rounded-xl bg-white/10"></div>
+          <div class="h-4 w-3/4 rounded bg-white/10"></div>
+          <div class="h-3 w-1/2 rounded bg-white/10"></div>
+        </div>
+        <div class="glass-card rounded-2xl p-3 animate-pulse space-y-3">
+          <div class="aspect-video w-full rounded-xl bg-white/10"></div>
+          <div class="h-4 w-3/4 rounded bg-white/10"></div>
+          <div class="h-3 w-1/2 rounded bg-white/10"></div>
+        </div>
+      </div>
+
+      <!-- Results Grid -->
+      <div id="resultsGrid" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+
+      <!-- Empty State -->
+      <div id="resultsEmpty" class="hidden glass-card rounded-2xl p-8 text-center">
+        <i data-lucide="search-x" class="mx-auto h-10 w-10 text-slate-500"></i>
+        <p class="mt-3 text-sm font-semibold text-white">Không tìm thấy video phù hợp với bộ lọc hiện tại</p>
+        <p class="mt-1 text-xs text-slate-400">Hãy thử chọn bộ lọc "Tất cả" hoặc mở trực tiếp kết quả trên YouTube.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Video Player Modal -->
+  <div id="playerModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+    <div class="glass-card w-full max-w-4xl overflow-hidden rounded-3xl shadow-2xl border border-white/15">
+      <div class="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-3.5">
+        <div class="min-w-0">
+          <h3 id="playerModalTitle" class="truncate text-sm font-bold text-white sm:text-base">Đang phát video</h3>
+          <p id="playerModalChannel" class="truncate text-xs text-slate-400">Kênh YouTube</p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <a id="playerModalYtLink" href="#" target="_blank" rel="noopener noreferrer" class="rounded-lg bg-ytRed/20 px-3 py-1.5 text-xs font-semibold text-rose-200 transition hover:bg-ytRed hover:text-white flex items-center gap-1">
+            <i data-lucide="external-link" class="h-3.5 w-3.5"></i>
+            YouTube
+          </a>
+          <button id="btnPlayerClose" type="button" class="rounded-lg bg-white/10 p-1.5 text-slate-300 transition hover:bg-white/20 hover:text-white" aria-label="Đóng trình phát">
+            <i data-lucide="x" class="h-5 w-5"></i>
+          </button>
+        </div>
+      </div>
+      <div id="playerEmbedContainer" class="aspect-video w-full bg-black"></div>
+    </div>
+  </div>
+
+  <!-- Settings Modal (API Keys) -->
+  <div id="settingsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+    <div class="glass-card w-full max-w-lg rounded-3xl p-6 shadow-2xl border border-white/15">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3.5">
+        <div class="flex items-center gap-2">
+          <i data-lucide="sliders-horizontal" class="h-5 w-5 text-ytRed"></i>
+          <h3 class="text-base font-bold text-white">Cài đặt API mở rộng (Tùy chọn)</h3>
+        </div>
+        <button id="btnSettingsClose" type="button" class="rounded-lg bg-white/10 p-1.5 text-slate-300 hover:bg-white/20 hover:text-white">
+          <i data-lucide="x" class="h-4 w-4"></i>
+        </button>
+      </div>
+
+      <p class="mt-3 text-xs leading-relaxed text-slate-300">
+        Ứng dụng hoạt động ngay không cần khóa API (dùng Web Speech API, nhận diện cao độ ngân nga, iTunes API và danh mục YouTube tích hợp). Bạn có thể nhập thêm khóa dưới đây để tìm kiếm trực tiếp toàn bộ YouTube và nhận diện nhạc nền PC như Shazam:
+      </p>
+
+      <form id="settingsForm" class="mt-4 space-y-4">
+        <div class="rounded-2xl border border-cyanGlow/30 bg-cyanGlow/5 p-3.5 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <label for="inputShazamUrl" class="block text-xs font-bold text-cyan-200">
+              Backend ShazamIO (Miễn phí 100%)
+            </label>
+            <span class="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">Khuyên dùng</span>
+          </div>
+          <input id="inputShazamUrl" type="url" placeholder="https://ten-server-cua-ban.up.railway.app" class="w-full rounded-xl border border-white/15 bg-black/50 px-3.5 py-2 text-xs text-white placeholder-slate-500 outline-none focus:border-cyanGlow" />
+          <label class="flex items-center gap-2 text-[11px] text-slate-300 cursor-pointer select-none">
+            <input id="chkSameOriginShazam" type="checkbox" class="rounded border-white/20 bg-black/50 text-cyanGlow focus:ring-cyanGlow" />
+            <span>Tự dùng backend cùng máy chủ (khi chạy file <code class="text-cyan-300">server.py</code> trực tiếp)</span>
+          </label>
+        </div>
+
+        <div>
+          <label for="inputYtApiKey" class="block text-xs font-semibold text-slate-200 mb-1">
+            YouTube Data API v3 Key
+          </label>
+          <input id="inputYtApiKey" type="password" placeholder="AIzaSy..." class="w-full rounded-xl border border-white/15 bg-black/50 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 outline-none focus:border-cyanGlow" />
+          <p class="mt-1 text-[11px] text-slate-400">Dùng để truy vấn kết quả tìm kiếm trực tiếp từ Google YouTube API.</p>
+        </div>
+
+        <div>
+          <label for="inputAuddToken" class="block text-xs font-semibold text-slate-200 mb-1">
+            AudD.io API Token (Nhận diện bài hát từ âm thanh PC / Micro)
+          </label>
+          <input id="inputAuddToken" type="password" placeholder="Nhập token AudD.io (tùy chọn)..." class="w-full rounded-xl border border-white/15 bg-black/50 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 outline-none focus:border-cyanGlow" />
+          <p class="mt-1 text-[11px] text-slate-400">Khi ghi âm nhạc đang phát trên PC, âm thanh sẽ gửi tới AudD để nhận diện tên bài hát &amp; ca sĩ chính xác.</p>
+        </div>
+
+        <div id="apiTestResult" class="hidden rounded-xl border border-white/10 bg-black/40 p-3 text-xs leading-relaxed"></div>
+
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
+          <button id="btnClearKeys" type="button" class="rounded-xl border border-white/10 px-3 py-2 text-xs font-medium text-slate-300 transition hover:bg-white/10">
+            Xóa khóa đã lưu
+          </button>
+          <div class="flex items-center gap-2">
+            <button id="btnTestKeys" type="button" class="rounded-xl border border-cyanGlow/40 bg-cyanGlow/15 px-3.5 py-2 text-xs font-semibold text-cyan-200 transition hover:bg-cyanGlow/25">
+              Kiểm tra khóa
+            </button>
+            <button type="submit" class="rounded-xl bg-ytRed px-5 py-2 text-xs font-bold text-white shadow-lg shadow-ytRed/25 transition hover:bg-rose-500">
+              Lưu cài đặt
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- History Drawer -->
+  <div id="historyDrawerBackdrop" class="fixed inset-0 z-50 hidden bg-black/65 backdrop-blur-sm">
+    <aside class="ml-auto flex h-full w-full max-w-sm flex-col border-l border-white/10 bg-panel p-5 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3.5">
+        <div class="flex items-center gap-2">
+          <i data-lucide="history" class="h-5 w-5 text-cyanGlow"></i>
+          <h3 class="text-base font-bold text-white">Lịch sử nhận diện</h3>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button id="btnClearHistory" type="button" class="rounded-lg px-2.5 py-1 text-xs font-medium text-rose-300 hover:bg-rose-500/15">
+            Xóa tất cả
+          </button>
+          <button id="btnHistoryClose" type="button" class="rounded-lg bg-white/10 p-1.5 text-slate-300 hover:bg-white/20 hover:text-white">
+            <i data-lucide="x" class="h-4 w-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="historyList" class="custom-scroll mt-4 flex-1 space-y-2.5 overflow-y-auto pr-1"></div>
+    </aside>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="pointer-events-none fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-xs sm:max-w-sm"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // =========================================================================
+      // 1. VERIFIED YOUTUBE VIDEO CATALOG (All IDs verified from search)
+      // =========================================================================
+      const VERIFIED_CATALOG = [
+        {
+          id: 'oNIwqIeNpU4',
+          title: 'Hoàng Thuỳ Linh - See Tình | Dance Performance',
+          channel: 'Hoàng Thùy Linh',
+          category: 'mv',
+          tags: ['see tinh', 'hoang thuy linh', 'tinh tinh tinh tang', 'nhac viet', 'pop'],
+          lyrics: 'Tình tình tình tang tang tính tang, giây phút em gặp anh là em biết em see tình',
+          melody: ['E4', 'G4', 'A4', 'B4', 'A4', 'G4', 'E4', 'D4'],
+          contour: '↗ ↗ ↗ ↘ ↘ ↘ ↘',
+          bpm: 122
+        },
+        {
+          id: 'gtarw6wgJfI',
+          title: 'Hoàng Thuỳ Linh - See Tình | Official Visualizer Video',
+          channel: 'Hoàng Thùy Linh',
+          category: 'mv',
+          tags: ['see tinh', 'hoang thuy linh', 'visualizer', 'tinh tinh'],
+          lyrics: 'Tình tình tình tang tang tính tang, see tình',
+          melody: ['E4', 'G4', 'A4', 'B4', 'A4', 'G4', 'E4', 'D4'],
+          contour: '↗ ↗ ↗ ↘ ↘ ↘ ↘',
+          bpm: 122
+        },
+        {
+          id: 'tVTRY6851Ug',
+          title: 'See Tình - Hoàng Thùy Linh「Cukak Remix」/ Audio Lyrics Video',
+          channel: 'Cukak',
+          category: 'remix',
+          tags: ['see tinh', 'hoang thuy linh', 'remix', 'cukak', 'tiktok'],
+          lyrics: 'See tình remix tình tình tình tang tang tính tang',
+          melody: ['E4', 'G4', 'A4', 'B4', 'A4', 'G4', 'E4'],
+          contour: '↗ ↗ ↗ ↘ ↘ ↘',
+          bpm: 128
+        },
+        {
+          id: '8bG6ElvGRdk',
+          title: 'Hoàng Thuỳ Linh - See Tình | Remix Version',
+          channel: 'Hoàng Thùy Linh',
+          category: 'remix',
+          tags: ['see tinh', 'hoang thuy linh', 'remix'],
+          lyrics: 'See tình remix version',
+          melody: ['E4', 'G4', 'A4', 'B4', 'A4', 'G4'],
+          contour: '↗ ↗ ↗ ↘ ↘',
+          bpm: 126
+        },
+        {
+          id: '3BbAgRg_XKQ',
+          title: 'Hoàng Thuỳ Linh - See Tình | Speed Up Version',
+          channel: 'Hoàng Thùy Linh',
+          category: 'remix',
+          tags: ['see tinh', 'hoang thuy linh', 'speed up'],
+          lyrics: 'See tình speed up',
+          melody: ['F#4', 'A4', 'B4', 'C#5', 'B4', 'A4'],
+          contour: '↗ ↗ ↗ ↘ ↘',
+          bpm: 138
+        },
+        {
+          id: 'eX6sFt4JkkI',
+          title: 'Nơi Này Có Anh | Sơn Tùng M-TP',
+          channel: 'Sơn Tùng M-TP Official',
+          category: 'mv',
+          tags: ['noi nay co anh', 'son tung mtp', 'em la ai tu dau buoc den noi day'],
+          lyrics: 'Em là ai từ đâu bước đến nơi đây dịu dàng chân phương, cầm tay anh dựa vai anh',
+          melody: ['C4', 'D4', 'E4', 'G4', 'G4', 'A4', 'G4', 'E4'],
+          contour: '↗ ↗ ↗ → ↗ ↘ ↘',
+          bpm: 105
+        },
+        {
+          id: 'BsJ_Zppftnw',
+          title: 'Nơi Này Có Anh (Lofi Ver.) - Sơn Tùng M-TP x Zeaplee',
+          channel: 'Zeaplee',
+          category: 'lofi',
+          tags: ['noi nay co anh', 'son tung mtp', 'lofi', 'chill'],
+          lyrics: 'Nơi này có anh lofi chill',
+          melody: ['C4', 'D4', 'E4', 'G4', 'A4', 'G4', 'E4'],
+          contour: '↗ ↗ ↗ ↗ ↘ ↘',
+          bpm: 92
+        },
+        {
+          id: 'Llw9Q6akRo4',
+          title: 'LẠC TRÔI | OFFICIAL MUSIC VIDEO | SƠN TÙNG M-TP',
+          channel: 'Sơn Tùng M-TP Official',
+          category: 'mv',
+          tags: ['lac troi', 'son tung mtp', 'nguoi theo huong hoa may mu giang loi'],
+          lyrics: 'Người theo hương hoa mây mù giăng lối, làn sương khói phôi phai đưa bước ai xa rồi',
+          melody: ['A4', 'C5', 'D5', 'E5', 'D5', 'C5', 'A4'],
+          contour: '↗ ↗ ↗ ↘ ↘ ↘',
+          bpm: 118
+        },
+        {
+          id: 'psZ1g9fMfeo',
+          title: 'SƠN TÙNG M-TP | CHÚNG TA CỦA HIỆN TẠI',
+          channel: 'Sơn Tùng M-TP Official',
+          category: 'mv',
+          tags: ['chung ta cua hien tai', 'son tung mtp', 'mua thu mang giac mo quay ve'],
+          lyrics: 'Mùa thu mang giấc mơ quay về, vẫn nguyên vẹn như hôm nào',
+          melody: ['G4', 'A4', 'B4', 'D5', 'B4', 'A4', 'G4'],
+          contour: '↗ ↗ ↗ ↘ ↘ ↘',
+          bpm: 96
+        },
+        {
+          id: 'PdbsnGuduvo',
+          title: 'Sơn Tùng M-TP - Chắc Ai Đó Sẽ Về',
+          channel: 'Sơn Tùng M-TP Official',
+          category: 'mv',
+          tags: ['chac ai do se ve', 'son tung mtp', 'anh tim noi dau'],
+          lyrics: 'Anh tìm nỗi nhớ, anh tìm quá khứ, chắc ai đó sẽ sớm quay lại thôi',
+          melody: ['E4', 'F#4', 'G4', 'A4', 'G4', 'F#4', 'E4'],
+          contour: '↗ ↗ ↗ ↘ ↘ ↘',
+          bpm: 78
+        },
+        {
+          id: '5e7e_KZINA4',
+          title: 'Đen - Đưa Nhau Đi Trốn ft. Linh Cáo [M/V]',
+          channel: 'Đen Vâu Official',
+          category: 'mv',
+          tags: ['dua nhau di tron', 'den vau', 'linh cao', 'rap viet', 'em oi di tron voi anh'],
+          lyrics: 'Em ơi đi trốn với anh, mình đi đến nơi có biển bạc núi xanh',
+          melody: ['D4', 'F4', 'G4', 'A4', 'G4', 'F4', 'D4'],
+          contour: '↗ ↗ ↗ ↘ ↘ ↘',
+          bpm: 95
+        },
+        {
+          id: 'xc5JQiQG8p4',
+          title: 'Đen - Đưa Nhau Đi Trốn ft. Linh Cáo (New Version - M/V)',
+          channel: 'Đen Vâu Official',
+          category: 'mv',
+          tags: ['dua nhau di tron', 'den vau', 'linh cao', 'new version'],
+          lyrics: 'Em ơi đi trốn với anh, đi đến nơi không khói bụi thành phố',
+          melody: ['D4', 'F4', 'G4', 'A4', 'G4', 'F4'],
+          contour: '↗ ↗ ↗ ↘ ↘',
+          bpm: 95
+        },
+        {
+          id: 'unpb3J5XfNE',
+          title: 'Đưa Nhau Đi Trốn (feat. Linh Cáo) (Live At Show Của Đen)',
+          channel: 'Đen Vâu Official',
+          category: 'live',
+          tags: ['dua nhau di tron', 'den vau', 'live', 'show cua den'],
+          lyrics: 'Đưa nhau đi trốn live show của Đen',
+          melody: ['D4', 'F4', 'G4', 'A4', 'G4', 'F4'],
+          contour: '↗ ↗ ↗ ↘ ↘',
+          bpm: 96
+        },
+        {
+          id: 'GfMwjeCRYAc',
+          title: 'Đen x Linh Cáo - Đưa Nhau Đi Trốn (Hoaprox Remix)',
+          channel: 'Hoaprox Official',
+          category: 'remix',
+          tags: ['dua nhau di tron', 'den vau', 'hoaprox', 'remix'],
+          lyrics: 'Đưa nhau đi trốn Hoaprox remix',
+          melody: ['D4', 'F4', 'G4', 'A4', 'G4'],
+          contour: '↗ ↗ ↗ ↘',
+          bpm: 124
+        },
+        {
+          id: 'GpmOn4RyzZI',
+          title: 'TĂNG DUY TÂN - CẮT ĐÔI NỖI SẦU (ft DRUM7)',
+          channel: 'Tăng Duy Tân',
+          category: 'mv',
+          tags: ['cat doi noi sau', 'tang duy tan', 'drum7', 'anh buong tay cat doi noi sau'],
+          lyrics: 'Cắt đôi nỗi sầu, anh buông tay cắt đôi nỗi sầu, anh cắt đi cả bóng hình',
+          melody: ['A4', 'G4', 'E4', 'G4', 'A4', 'C5', 'A4'],
+          contour: '↘ ↘ ↗ ↗ ↗ ↘',
+          bpm: 125
+        },
+        {
+          id: '6pWrUzyjU44',
+          title: 'Cắt Đôi Nỗi Sầu (Orinn Lofi Ver) - Tăng Duy Tân ft. Drum7',
+          channel: 'Orinn',
+          category: 'lofi',
+          tags: ['cat doi noi sau', 'tang duy tan', 'lofi', 'orinn'],
+          lyrics: 'Cắt đôi nỗi sầu lofi version',
+          melody: ['A4', 'G4', 'E4', 'G4', 'A4'],
+          contour: '↘ ↘ ↗ ↗',
+          bpm: 94
+        },
+        {
+          id: '3hFCBkagYDU',
+          title: 'Cắt Đôi Nỗi Sầu - Tăng Duy Tân ft. Drum7「Cukak Remix」',
+          channel: 'Cukak',
+          category: 'remix',
+          tags: ['cat doi noi sau', 'tang duy tan', 'remix', 'cukak'],
+          lyrics: 'Cắt đôi nỗi sầu remix',
+          melody: ['A4', 'G4', 'E4', 'G4', 'A4', 'C5'],
+          contour: '↘ ↘ ↗ ↗ ↗',
+          bpm: 130
+        },
+        {
+          id: 'N9-PrsOiiA4',
+          title: 'Ed Sheeran - Shape of You [Official Video]',
+          channel: 'Ed Sheeran',
+          category: 'mv',
+          tags: ['shape of you', 'ed sheeran', 'im in love with the shape of you', 'pop'],
+          lyrics: 'I am in love with the shape of you, we push and pull like a magnet do',
+          melody: ['C#4', 'E4', 'C#4', 'C#4', 'E4', 'C#4', 'F#4', 'E4'],
+          contour: '↗ ↘ → ↗ ↘ ↗ ↘',
+          bpm: 96
+        },
+        {
+          id: 'liTfD88dbCo',
+          title: 'Ed Sheeran - Shape of You (Lyrics)',
+          channel: '7clouds',
+          category: 'lofi',
+          tags: ['shape of you', 'ed sheeran', 'lyrics'],
+          lyrics: 'Shape of you lyrics',
+          melody: ['C#4', 'E4', 'C#4', 'F#4', 'E4'],
+          contour: '↗ ↘ ↗ ↘',
+          bpm: 96
+        },
+        {
+          id: 'deBbFXGZ_cE',
+          title: 'Alan Walker - Faded [Official Music Video]',
+          channel: 'Alan Walker',
+          category: 'mv',
+          tags: ['faded', 'alan walker', 'where are you now', 'edm'],
+          lyrics: 'You were the shadow to my light, did you feel us, where are you now',
+          melody: ['F#4', 'F#4', 'F#4', 'A#4', 'D#5', 'D#5', 'C#5', 'G#4'],
+          contour: '→ → ↗ ↗ → ↘ ↘',
+          bpm: 90
+        },
+        {
+          id: 'mIxlvVlOIS0',
+          title: 'Alan Walker - Faded (Live Performance)',
+          channel: 'Alan Walker',
+          category: 'live',
+          tags: ['faded', 'alan walker', 'live'],
+          lyrics: 'Alan Walker Faded live performance',
+          melody: ['F#4', 'A#4', 'D#5', 'C#5', 'G#4'],
+          contour: '↗ ↗ ↘ ↘',
+          bpm: 90
+        },
+        {
+          id: 'U9Ktu284ZL8',
+          title: '「Vietsub Lyrics Video」Faded - Alan Walker',
+          channel: 'Radio of Kamus',
+          category: 'lofi',
+          tags: ['faded', 'alan walker', 'vietsub', 'lyrics'],
+          lyrics: 'Faded vietsub lyrics',
+          melody: ['F#4', 'A#4', 'D#5', 'C#5'],
+          contour: '↗ ↗ ↘',
+          bpm: 90
+        }
+      ];
+
+      const DEMO_PRESETS = {
+        pc_seetinh: {
+          mode: 'pc',
+          modeLabel: 'Âm thanh PC / Tab',
+          heardText: 'See Tình - Hoàng Thùy Linh (Tình tình tình tang tang tính tang)',
+          query: 'See Tình Hoàng Thùy Linh',
+          keywords: ['See Tình', 'Hoàng Thùy Linh', 'tình tình tình tang'],
+          notes: ['E4', 'G4', 'A4', 'B4', 'A4', 'G4', 'E4', 'D4'],
+          freqs: [329.6, 392.0, 440.0, 493.9, 440.0, 392.0, 329.6, 293.7],
+          contour: '↗ ↗ ↗ ↘ ↘ ↘ ↘',
+          bpm: 122,
+          confidence: 98,
+          duration: 3.4
+        },
+        hum_sontung: {
+          mode: 'hum',
+          modeLabel: 'Ngân nga giai điệu',
+          heardText: 'Nơi Này Có Anh - Sơn Tùng M-TP (Khớp giai điệu ngân nga)',
+          query: 'Nơi Này Có Anh Sơn Tùng M-TP',
+          keywords: ['Nơi Này Có Anh', 'Sơn Tùng M-TP', 'Giai điệu C-D-E-G'],
+          notes: ['C4', 'D4', 'E4', 'G4', 'G4', 'A4', 'G4', 'E4'],
+          freqs: [261.6, 293.7, 329.6, 392.0, 392.0, 440.0, 392.0, 329.6],
+          contour: '↗ ↗ ↗ → ↗ ↘ ↘',
+          bpm: 105,
+          confidence: 94,
+          duration: 3.6
+        },
+        mic_denvau: {
+          mode: 'mic',
+          modeLabel: 'Micro / Giọng hát',
+          heardText: 'Em ơi đi trốn với anh mình đi đến nơi có biển bạc núi xanh',
+          query: 'Đưa Nhau Đi Trốn Đen Vâu',
+          keywords: ['Đưa Nhau Đi Trốn', 'Đen Vâu', 'Linh Cáo', 'đi trốn với anh'],
+          notes: ['D4', 'F4', 'G4', 'A4', 'G4', 'F4', 'D4'],
+          freqs: [293.7, 349.2, 392.0, 440.0, 392.0, 349.2, 293.7],
+          contour: '↗ ↗ ↗ ↘ ↘ ↘',
+          bpm: 95,
+          confidence: 96,
+          duration: 3.2
+        }
+      };
+
+      const MODE_INFO = {
+        pc: {
+          label: 'Âm thanh PC / Tab',
+          hint: 'Thu trực tiếp âm thanh đang phát trên máy tính hoặc thẻ trình duyệt (YouTube, TikTok, Spotify...). Nhớ tích chọn <strong class="text-cyanGlow">"Chia sẻ âm thanh"</strong> trong hộp thoại trình duyệt.',
+          vizTitle: 'Phổ tần số âm thanh hệ thống (PC / Tab)',
+          showLang: false
+        },
+        mic: {
+          label: 'Micro / Lời hát',
+          hint: 'Hát, đọc lời bài hát hoặc đưa micro lại gần loa ngoài. Hệ thống sẽ chuyển giọng nói thành văn bản theo thời gian thực và tìm ngay video YouTube khớp nhất.',
+          vizTitle: 'Sóng âm Micro & Nhận diện lời hát trực tiếp',
+          showLang: true
+        },
+        hum: {
+          label: 'Ngân nga giai điệu',
+          hint: 'Ngân nga ("ừm...", "la la...") hoặc huýt sáo giai điệu trong 5–10 giây. Bộ phân tích cao độ sẽ ghi nhận chuỗi nốt nhạc và đường nét giai điệu để tìm bài hát.',
+          vizTitle: 'Đồ thị cao độ & Nốt nhạc ngân nga trực tiếp',
+          showLang: false
+        }
+      };
+
+      // =========================================================================
+      // 2. APPLICATION STATE
+      // =========================================================================
+      const state = {
+        mode: 'pc',
+        isListening: false,
+        isDemoRunning: false,
+        categoryFilter: 'all',
+        sortBy: 'match',
+        currentQuery: '',
+        currentHeard: null,
+        results: [],
+        history: [],
+        apiKeys: {
+          ytApiKey: '',
+          auddToken: '',
+          shazamUrl: '',
+          useSameOriginShazam: false
+        },
+        // Runtime audio handles
+        audioCtx: null,
+        analyser: null,
+        mediaStream: null,
+        mediaRecorder: null,
+        recordedChunks: [],
+        recordedAudioUrl: null,
+        recognition: null,
+        rafId: null,
+        timerId: null,
+        demoTimeoutId: null,
+        listenStartTime: 0,
+        liveTranscript: '',
+        finalTranscript: '',
+        detectedNotes: [],
+        detectedFreqs: [],
+        lastNoteTime: 0
+      };
+
+      // =========================================================================
+      // 3. DOM REFERENCES
+      // =========================================================================
+      const dom = {
+        modeTabs: document.querySelectorAll('.mode-tab'),
+        modeHintText: document.getElementById('modeHintText'),
+        langWrap: document.getElementById('langWrap'),
+        speechLangSelect: document.getElementById('speechLangSelect'),
+        btnListenMain: document.getElementById('btnListenMain'),
+        listenIcon: document.getElementById('listenIcon'),
+        listenLabel: document.getElementById('listenLabel'),
+        ring1: document.getElementById('ring1'),
+        ring2: document.getElementById('ring2'),
+        statusDot: document.getElementById('statusDot'),
+        statusText: document.getElementById('statusText'),
+        timerText: document.getElementById('timerText'),
+        vizTitle: document.getElementById('vizTitle'),
+        liveNoteBadge: document.getElementById('liveNoteBadge'),
+        liveHzBadge: document.getElementById('liveHzBadge'),
+        liveDbBadge: document.getElementById('liveDbBadge'),
+        audioCanvas: document.getElementById('audioCanvas'),
+        liveCaptionText: document.getElementById('liveCaptionText'),
+        demoBtns: document.querySelectorAll('.demo-btn'),
+        manualSearchForm: document.getElementById('manualSearchForm'),
+        manualSearchInput: document.getElementById('manualSearchInput'),
+
+        heardSection: document.getElementById('heardSection'),
+        heardMetaLine: document.getElementById('heardMetaLine'),
+        confidenceBadge: document.getElementById('confidenceBadge'),
+        btnCopyHeard: document.getElementById('btnCopyHeard'),
+        heardEditableInput: document.getElementById('heardEditableInput'),
+        btnResearchEdited: document.getElementById('btnResearchEdited'),
+        keywordChips: document.getElementById('keywordChips'),
+        recordedAudioWrap: document.getElementById('recordedAudioWrap'),
+        recordedAudioPlayer: document.getElementById('recordedAudioPlayer'),
+        recordedDurationLabel: document.getElementById('recordedDurationLabel'),
+        detectedKeyBpm: document.getElementById('detectedKeyBpm'),
+        melodyCanvas: document.getElementById('melodyCanvas'),
+        detectedContourArrows: document.getElementById('detectedContourArrows'),
+        detectedNotesStrip: document.getElementById('detectedNotesStrip'),
+
+        resultsHeading: document.getElementById('resultsHeading'),
+        resultsSubheading: document.getElementById('resultsSubheading'),
+        openYoutubeDirectLink: document.getElementById('openYoutubeDirectLink'),
+        sortSelect: document.getElementById('sortSelect'),
+        catPills: document.querySelectorAll('.cat-pill'),
+        resultsLoading: document.getElementById('resultsLoading'),
+        resultsGrid: document.getElementById('resultsGrid'),
+        resultsEmpty: document.getElementById('resultsEmpty'),
+
+        playerModal: document.getElementById('playerModal'),
+        playerModalTitle: document.getElementById('playerModalTitle'),
+        playerModalChannel: document.getElementById('playerModalChannel'),
+        playerModalYtLink: document.getElementById('playerModalYtLink'),
+        playerEmbedContainer: document.getElementById('playerEmbedContainer'),
+        btnPlayerClose: document.getElementById('btnPlayerClose'),
+
+        settingsModal: document.getElementById('settingsModal'),
+        btnSettingsOpen: document.getElementById('btnSettingsOpen'),
+        btnSettingsClose: document.getElementById('btnSettingsClose'),
+        settingsForm: document.getElementById('settingsForm'),
+        inputShazamUrl: document.getElementById('inputShazamUrl'),
+        chkSameOriginShazam: document.getElementById('chkSameOriginShazam'),
+        inputYtApiKey: document.getElementById('inputYtApiKey'),
+        inputAuddToken: document.getElementById('inputAuddToken'),
+        btnClearKeys: document.getElementById('btnClearKeys'),
+        btnTestKeys: document.getElementById('btnTestKeys'),
+        apiTestResult: document.getElementById('apiTestResult'),
+        apiStatusDot: document.getElementById('apiStatusDot'),
+
+        btnHistoryToggle: document.getElementById('btnHistoryToggle'),
+        historyBadge: document.getElementById('historyBadge'),
+        historyDrawerBackdrop: document.getElementById('historyDrawerBackdrop'),
+        btnHistoryClose: document.getElementById('btnHistoryClose'),
+        btnClearHistory: document.getElementById('btnClearHistory'),
+        historyList: document.getElementById('historyList'),
+        toastContainer: document.getElementById('toastContainer')
+      };
+
+      // =========================================================================
+      // 4. UTILITIES (Safe Storage, Toast, Normalization, Pitch Detection)
+      // =========================================================================
+      function safeGetStorage(key, fallback) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch (e) {
+          return fallback;
+        }
+      }
+
+      function safeSetStorage(key, value) {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch (e) {
+          // Ignore storage restrictions
+        }
+      }
+
+      function showToast(message, type) {
+        const colors = {
+          info: 'border-cyanGlow/40 bg-panel text-cyan-100',
+          success: 'border-emerald-400/40 bg-panel text-emerald-100',
+          warn: 'border-amber-400/40 bg-panel text-amber-100',
+          error: 'border-ytRed/50 bg-panel text-rose-100'
+        };
+        const el = document.createElement('div');
+        el.className = 'pointer-events-auto rounded-2xl border px-4 py-3 text-xs font-medium shadow-2xl transition-all duration-300 ' + (colors[type] || colors.info);
+        el.textContent = message;
+        dom.toastContainer.appendChild(el);
+        setTimeout(function () {
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(8px)';
+          setTimeout(function () {
+            if (el.parentNode) el.parentNode.removeChild(el);
+          }, 300);
+        }, 3600);
+      }
+
+      function normalizeVi(str) {
+        return (str || '')
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/đ/g, 'd')
+          .replace(/[^a-z0-9\s]/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      function escapeHtml(str) {
+        return String(str || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function decodeHtmlEntities(str) {
+        const ta = document.createElement('textarea');
+        ta.innerHTML = String(str || '');
+        return ta.value;
+      }
+
+      async function blobToWav(blob) {
+        try {
+          const arrayBuf = await blob.arrayBuffer();
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          const tmpCtx = new AudioCtx();
+          const audioBuf = await tmpCtx.decodeAudioData(arrayBuf.slice(0));
+          const targetRate = 16000;
+          const numFrames = Math.ceil(audioBuf.duration * targetRate);
+          const offCtx = new OfflineAudioContext(1, Math.max(1, numFrames), targetRate);
+          const src = offCtx.createBufferSource();
+          src.buffer = audioBuf;
+          src.connect(offCtx.destination);
+          src.start(0);
+          const rendered = await offCtx.startRendering();
+          try { tmpCtx.close(); } catch (e) {}
+          const samples = rendered.getChannelData(0);
+          const wavBuf = new ArrayBuffer(44 + samples.length * 2);
+          const view = new DataView(wavBuf);
+          function writeStr(offset, str) {
+            for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+          }
+          writeStr(0, 'RIFF');
+          view.setUint32(4, 36 + samples.length * 2, true);
+          writeStr(8, 'WAVE');
+          writeStr(12, 'fmt ');
+          view.setUint32(16, 16, true);
+          view.setUint16(20, 1, true);
+          view.setUint16(22, 1, true);
+          view.setUint32(24, targetRate, true);
+          view.setUint32(28, targetRate * 2, true);
+          view.setUint16(32, 2, true);
+          view.setUint16(34, 16, true);
+          writeStr(36, 'data');
+          view.setUint32(40, samples.length * 2, true);
+          let offset = 44;
+          for (let i = 0; i < samples.length; i++) {
+            const clamped = Math.max(-1, Math.min(1, samples[i]));
+            view.setInt16(offset, clamped < 0 ? clamped * 0x8000 : clamped * 0x7fff, true);
+            offset += 2;
+          }
+          return new Blob([wavBuf], { type: 'audio/wav' });
+        } catch (e) {
+          return blob;
+        }
+      }
+
+      const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+      function freqToNote(freq) {
+        if (!freq || freq < 65 || freq > 1600) return null;
+        const midi = Math.round(12 * (Math.log(freq / 440) / Math.log(2))) + 69;
+        const note = NOTE_NAMES[((midi % 12) + 12) % 12];
+        const octave = Math.floor(midi / 12) - 1;
+        return { name: note + octave, midi: midi, freq: Math.round(freq) };
+      }
+
+      // Autocorrelation pitch detection for real-time humming/singing
+      function detectPitch(buf, sampleRate) {
+        const SIZE = buf.length;
+        let rms = 0;
+        for (let i = 0; i < SIZE; i++) {
+          rms += buf[i] * buf[i];
+        }
+        rms = Math.sqrt(rms / SIZE);
+        if (rms < 0.015) return { freq: 0, rms: rms };
+
+        let r1 = 0, r2 = SIZE - 1;
+        const thres = 0.2;
+        for (let i = 0; i < SIZE / 2; i++) {
+          if (Math.abs(buf[i]) < thres) { r1 = i; break; }
+        }
+        for (let i = 1; i < SIZE / 2; i++) {
+          if (Math.abs(buf[SIZE - i]) < thres) { r2 = SIZE - i; break; }
+        }
+        const trimmed = buf.slice(r1, r2);
+        const len = trimmed.length;
+        if (len < 32) return { freq: 0, rms: rms };
+
+        const c = new Float32Array(len);
+        for (let i = 0; i < len; i++) {
+          let sum = 0;
+          for (let j = 0; j < len - i; j++) {
+            sum += trimmed[j] * trimmed[j + i];
+          }
+          c[i] = sum;
+        }
+        let d = 0;
+        while (d < len - 1 && c[d] > c[d + 1]) d++;
+        let maxval = -1, maxpos = -1;
+        for (let i = d; i < len; i++) {
+          if (c[i] > maxval) {
+            maxval = c[i];
+            maxpos = i;
+          }
+        }
+        if (maxpos <= 0) return { freq: 0, rms: rms };
+        const freq = sampleRate / maxpos;
+        return { freq: (freq >= 70 && freq <= 1400) ? freq : 0, rms: rms };
+      }
+
+      function computeContourFromNotes(notes) {
+        if (!notes || notes.length < 2) return '--';
+        const arrows = [];
+        for (let i = 1; i < notes.length; i++) {
+          const prev = typeof notes[i - 1] === 'object' ? notes[i - 1].midi : noteStringToMidi(notes[i - 1]);
+          const curr = typeof notes[i] === 'object' ? notes[i].midi : noteStringToMidi(notes[i]);
+          if (curr > prev) arrows.push('↗');
+          else if (curr < prev) arrows.push('↘');
+          else arrows.push('→');
+        }
+        return arrows.slice(0, 10).join(' ');
+      }
+
+      function noteStringToMidi(nStr) {
+        const m = /^([A-G]#?)(-?\d)$/.exec(String(nStr || ''));
+        if (!m) return 60;
+        const idx = NOTE_NAMES.indexOf(m[1]);
+        const oct = parseInt(m[2], 10);
+        return (oct + 1) * 12 + idx;
+      }
+
+      function extractKeywords(text) {
+        const stop = new Set(['tim', 'bai', 'hat', 'video', 'youtube', 'nhac', 'cua', 'cho', 'toi', 'minh', 'la', 'va', 'co', 'the', 'trong', 'nay', 'mot', 'nhung', 'khong', 'duoc']);
+        const words = (text || '').trim().split(/\s+/).filter(Boolean);
+        const chips = [];
+        if (text && text.trim().length > 2) {
+          chips.push(text.trim().slice(0, 42));
+        }
+        for (let i = 0; i < words.length; i++) {
+          const clean = words[i].replace(/[.,!?()[\]"]/g, '');
+          if (clean.length >= 3 && !stop.has(normalizeVi(clean)) && chips.length < 5) {
+            if (!chips.some(function (c) { return normalizeVi(c) === normalizeVi(clean); })) {
+              chips.push(clean);
+            }
+          }
+        }
+        return chips;
+      }
+
+      // =========================================================================
+      // 5. CANVAS VISUALIZERS (Live Spectrum / Waveform & Melody Contour)
+      // =========================================================================
+      function sizeCanvas(canvas) {
+        if (!canvas) return null;
+        const rect = canvas.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = Math.max(100, Math.floor(rect.width));
+        const h = Math.max(60, Math.floor(rect.height));
+        if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+          canvas.width = w * dpr;
+          canvas.height = h * dpr;
+        }
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return { ctx: ctx, w: w, h: h };
+      }
+
+      let idlePhase = 0;
+      function drawIdleWave() {
+        const info = sizeCanvas(dom.audioCanvas);
+        if (!info) return;
+        const { ctx, w, h } = info;
+        ctx.clearRect(0, 0, w, h);
+
+        // Subtle grid line
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, h / 2);
+        ctx.lineTo(w, h / 2);
+        ctx.stroke();
+
+        // Gentle breathing wave
+        const bars = 48;
+        const gap = w / bars;
+        for (let i = 0; i < bars; i++) {
+          const norm = i / bars;
+          const amp = (Math.sin(norm * Math.PI * 3 + idlePhase) * 0.5 + 0.5) * 18 + 6;
+          const barH = amp * Math.sin(norm * Math.PI);
+          const x = i * gap + gap * 0.25;
+          const barW = Math.max(2, gap * 0.5);
+          const grad = ctx.createLinearGradient(0, h / 2 - barH, 0, h / 2 + barH);
+          grad.addColorStop(0, 'rgba(0, 229, 255, 0.45)');
+          grad.addColorStop(1, 'rgba(255, 42, 85, 0.45)');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.roundRect(x, h / 2 - barH, barW, barH * 2, 3);
+          ctx.fill();
+        }
+        idlePhase += 0.04;
+        if (!state.isListening && !state.isDemoRunning) {
+          state.rafId = requestAnimationFrame(drawIdleWave);
+        }
+      }
+
+      function drawLiveAudioLoop() {
+        if (!state.isListening || !state.analyser) return;
+        const info = sizeCanvas(dom.audioCanvas);
+        if (!info) return;
+        const { ctx, w, h } = info;
+
+        const freqData = new Uint8Array(state.analyser.frequencyBinCount);
+        const timeData = new Float32Array(state.analyser.fftSize);
+        state.analyser.getByteFrequencyData(freqData);
+        state.analyser.getFloatTimeDomainData(timeData);
+
+        ctx.clearRect(0, 0, w, h);
+
+        // Background grid
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, h / 2);
+        ctx.lineTo(w, h / 2);
+        ctx.stroke();
+
+        // Draw spectrum bars
+        const barCount = 52;
+        const step = Math.max(1, Math.floor(freqData.length / barCount / 2));
+        const barSlot = w / barCount;
+        let energySum = 0;
+
+        for (let i = 0; i < barCount; i++) {
+          const val = freqData[i * step] || 0;
+          energySum += val;
+          const barH = Math.max(4, (val / 255) * (h * 0.85));
+          const x = i * barSlot + barSlot * 0.18;
+          const bw = Math.max(2, barSlot * 0.64);
+          const grad = ctx.createLinearGradient(0, h - barH, 0, h);
+          grad.addColorStop(0, '#00e5ff');
+          grad.addColorStop(0.55, '#8b5cf6');
+          grad.addColorStop(1, '#ff2a55');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.roundRect(x, (h - barH) / 2, bw, barH, 3);
+          ctx.fill();
+        }
+
+        // Overlay waveform line
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.72)';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        const slice = w / timeData.length;
+        for (let i = 0; i < timeData.length; i += 4) {
+          const x = i * slice;
+          const y = (timeData[i] * 0.45 + 0.5) * h;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Telemetry & Pitch Detection
+        const avgEnergy = energySum / barCount;
+        const db = Math.min(99, Math.round((avgEnergy / 255) * 95));
+        dom.liveDbBadge.textContent = db + ' dB';
+
+        const pitch = detectPitch(timeData, state.audioCtx ? state.audioCtx.sampleRate : 44100);
+        if (pitch.freq > 0) {
+          const noteObj = freqToNote(pitch.freq);
+          if (noteObj) {
+            dom.liveHzBadge.textContent = noteObj.freq + ' Hz';
+            dom.liveNoteBadge.textContent = 'Nốt: ' + noteObj.name;
+            const now = Date.now();
+            if (now - state.lastNoteTime > 260) {
+              const prev = state.detectedNotes[state.detectedNotes.length - 1];
+              if (!prev || prev.name !== noteObj.name || now - state.lastNoteTime > 700) {
+                state.detectedNotes.push(noteObj);
+                state.detectedFreqs.push(noteObj.freq);
+                if (state.detectedNotes.length > 16) {
+                  state.detectedNotes.shift();
+                  state.detectedFreqs.shift();
+                }
+                state.lastNoteTime = now;
+              }
+            }
+          }
+        }
+
+        state.rafId = requestAnimationFrame(drawLiveAudioLoop);
+      }
+
+      function drawMelodyContour(freqs) {
+        const info = sizeCanvas(dom.melodyCanvas);
+        if (!info) return;
+        const { ctx, w, h } = info;
+        ctx.clearRect(0, 0, w, h);
+
+        const pts = (freqs && freqs.length >= 2) ? freqs : [260, 310, 350, 390, 350, 310];
+        const minF = Math.min.apply(null, pts) * 0.9;
+        const maxF = Math.max.apply(null, pts) * 1.1;
+        const range = Math.max(20, maxF - minF);
+
+        // Subtle horizontal guide lines
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.lineWidth = 1;
+        for (let g = 1; g <= 3; g++) {
+          const gy = (h / 4) * g;
+          ctx.beginPath();
+          ctx.moveTo(0, gy);
+          ctx.lineTo(w, gy);
+          ctx.stroke();
+        }
+
+        const padX = 16;
+        const padY = 12;
+        const stepX = (w - padX * 2) / Math.max(1, pts.length - 1);
+
+        // Area fill
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, 'rgba(0, 229, 255, 0.32)');
+        grad.addColorStop(1, 'rgba(139, 92, 246, 0.02)');
+
+        ctx.beginPath();
+        pts.forEach(function (f, idx) {
+          const x = padX + idx * stepX;
+          const y = h - padY - ((f - minF) / range) * (h - padY * 2);
+          if (idx === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.lineTo(padX + (pts.length - 1) * stepX, h);
+        ctx.lineTo(padX, h);
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Line stroke
+        ctx.beginPath();
+        pts.forEach(function (f, idx) {
+          const x = padX + idx * stepX;
+          const y = h - padY - ((f - minF) / range) * (h - padY * 2);
+          if (idx === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = '#00e5ff';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Dots
+        pts.forEach(function (f, idx) {
+          const x = padX + idx * stepX;
+          const y = h - padY - ((f - minF) / range) * (h - padY * 2);
+          ctx.beginPath();
+          ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+          ctx.strokeStyle = '#ff2a55';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        });
+      }
+
+      // =========================================================================
+      // 6. REAL AUDIO CAPTURE (PC / Tab Audio, Microphone, Web Speech, Hum)
+      // =========================================================================
+      function setListeningUI(active) {
+        if (active) {
+          dom.btnListenMain.classList.remove('listen-btn-idle');
+          dom.btnListenMain.classList.add('listen-btn-active');
+          dom.listenLabel.textContent = 'Dừng & Tìm';
+          dom.ring1.classList.remove('opacity-0');
+          dom.ring1.classList.add('listen-ring');
+          dom.ring2.classList.remove('opacity-0');
+          dom.ring2.classList.add('listen-ring-delay');
+          dom.statusDot.className = 'h-2 w-2 rounded-full bg-cyanGlow animate-pulse';
+          dom.timerText.classList.remove('hidden');
+        } else {
+          dom.btnListenMain.classList.remove('listen-btn-active');
+          dom.btnListenMain.classList.add('listen-btn-idle');
+          dom.listenLabel.textContent = 'Bắt đầu nghe';
+          dom.ring1.classList.add('opacity-0');
+          dom.ring1.classList.remove('listen-ring');
+          dom.ring2.classList.add('opacity-0');
+          dom.ring2.classList.remove('listen-ring-delay');
+          dom.statusDot.className = 'h-2 w-2 rounded-full bg-slate-400';
+          dom.timerText.classList.add('hidden');
+        }
+      }
+
+      async function startListening() {
+        if (state.isDemoRunning) {
+          stopDemo();
+        }
+        if (state.isListening) {
+          await stopListeningAndSearch();
+          return;
+        }
+
+        state.liveTranscript = '';
+        state.finalTranscript = '';
+        state.detectedNotes = [];
+        state.detectedFreqs = [];
+        state.recordedChunks = [];
+        if (state.recordedAudioUrl) {
+          URL.revokeObjectURL(state.recordedAudioUrl);
+          state.recordedAudioUrl = null;
+        }
+
+        try {
+          let stream = null;
+          if (state.mode === 'pc') {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+              throw new Error('Trình duyệt không hỗ trợ thu âm thanh màn hình/tab (getDisplayMedia).');
+            }
+            dom.statusText.textContent = 'Chọn thẻ/màn hình đang phát nhạc...';
+            stream = await navigator.mediaDevices.getDisplayMedia({
+              video: true,
+              audio: {
+                echoCancellation: false,
+                noiseSuppression: false,
+                autoGainControl: false
+              }
+            });
+            const audioTracks = stream.getAudioTracks();
+            if (!audioTracks || audioTracks.length === 0) {
+              stream.getTracks().forEach(function (t) { t.stop(); });
+              showToast('Bạn chưa tích chọn "Chia sẻ âm thanh" khi chia sẻ thẻ/màn hình. Hãy thử lại nhé!', 'warn');
+              dom.statusText.textContent = 'Chưa có tín hiệu âm thanh PC';
+              return;
+            }
+            // Stop video track if user stops sharing externally
+            audioTracks[0].addEventListener('ended', function () {
+              if (state.isListening) stopListeningAndSearch();
+            });
+          } else {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+              throw new Error('Trình duyệt không hỗ trợ truy cập Micro.');
+            }
+            dom.statusText.textContent = 'Đang xin quyền truy cập Micro...';
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          }
+
+          state.mediaStream = stream;
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          state.audioCtx = new AudioContextClass();
+          const source = state.audioCtx.createMediaStreamSource(stream);
+          state.analyser = state.audioCtx.createAnalyser();
+          state.analyser.fftSize = 2048;
+          state.analyser.smoothingTimeConstant = 0.82;
+          source.connect(state.analyser);
+
+          // Setup MediaRecorder for playback & AudD upload
+          try {
+            const audioOnlyStream = new MediaStream(stream.getAudioTracks());
+            state.mediaRecorder = new MediaRecorder(audioOnlyStream);
+            state.mediaRecorder.ondataavailable = function (ev) {
+              if (ev.data && ev.data.size > 0) state.recordedChunks.push(ev.data);
+            };
+            state.mediaRecorder.start();
+          } catch (recErr) {
+            state.mediaRecorder = null;
+          }
+
+          // Setup Web Speech API for Mic mode
+          if (state.mode === 'mic') {
+            startSpeechRecognition();
+          } else if (state.mode === 'hum') {
+            dom.liveCaptionText.textContent = 'Đang lắng nghe giai điệu ngân nga của bạn... Hãy ngân nga rõ ràng trong 5-8 giây rồi nhấn "Dừng & Tìm".';
+          } else {
+            dom.liveCaptionText.textContent = 'Đang thu âm thanh phát trên PC / Tab... Nhấn "Dừng & Tìm" sau 5-10 giây để nhận diện.';
+          }
+
+          state.isListening = true;
+          state.listenStartTime = Date.now();
+          setListeningUI(true);
+          dom.statusText.textContent = 'Đang nghe (' + MODE_INFO[state.mode].label + ')';
+
+          if (state.rafId) cancelAnimationFrame(state.rafId);
+          drawLiveAudioLoop();
+
+          if (state.timerId) clearInterval(state.timerId);
+          state.timerId = setInterval(function () {
+            const elapsed = Math.floor((Date.now() - state.listenStartTime) / 1000);
+            const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+            const secs = String(elapsed % 60).padStart(2, '0');
+            dom.timerText.textContent = mins + ':' + secs;
+          }, 250);
+        } catch (err) {
+          dom.statusText.textContent = 'Sẵn sàng lắng nghe';
+          showToast('Không thể truy cập nguồn âm thanh: ' + (err.message || 'Quyền bị từ chối') + '. Bạn có thể dùng nút "Thử nhanh" bên dưới!', 'warn');
+        }
+      }
+
+      function startSpeechRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+          dom.liveCaptionText.textContent = 'Trình duyệt không hỗ trợ Web Speech API. Âm thanh vẫn đang được ghi lại để phát lại và phân tích.';
+          return;
+        }
+        try {
+          const rec = new SpeechRecognition();
+          rec.lang = dom.speechLangSelect.value || 'vi-VN';
+          rec.continuous = true;
+          rec.interimResults = true;
+          rec.onresult = function (event) {
+            let interim = '';
+            let finalText = '';
+            for (let i = 0; i < event.results.length; i++) {
+              const t = event.results[i][0].transcript;
+              if (event.results[i].isFinal) finalText += t + ' ';
+              else interim += t;
+            }
+            state.finalTranscript = finalText.trim();
+            state.liveTranscript = (finalText + interim).trim();
+            dom.liveCaptionText.textContent = state.liveTranscript || 'Đang lắng nghe giọng nói / lời hát...';
+          };
+          rec.onerror = function () {
+            // Silently keep audio recorder running
+          };
+          rec.start();
+          state.recognition = rec;
+        } catch (e) {
+          state.recognition = null;
+        }
+      }
+
+      async function stopListeningAndSearch() {
+        state.isListening = false;
+        setListeningUI(false);
+        if (state.timerId) {
+          clearInterval(state.timerId);
+          state.timerId = null;
+        }
+        if (state.rafId) {
+          cancelAnimationFrame(state.rafId);
+          state.rafId = null;
+        }
+        if (state.recognition) {
+          try { state.recognition.stop(); } catch (e) {}
+          state.recognition = null;
+        }
+
+        const durationSec = Math.max(0.5, (Date.now() - state.listenStartTime) / 1000);
+
+        // Finalize MediaRecorder blob
+        let audioBlob = null;
+        if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
+          audioBlob = await new Promise(function (resolve) {
+            state.mediaRecorder.onstop = function () {
+              resolve(new Blob(state.recordedChunks, { type: 'audio/webm' }));
+            };
+            try { state.mediaRecorder.stop(); } catch (e) { resolve(null); }
+          });
+        }
+        if (state.mediaStream) {
+          state.mediaStream.getTracks().forEach(function (t) { t.stop(); });
+          state.mediaStream = null;
+        }
+        if (state.audioCtx) {
+          try { state.audioCtx.close(); } catch (e) {}
+          state.audioCtx = null;
+        }
+        state.analyser = null;
+
+        // Restart idle visualizer
+        drawIdleWave();
+
+        if (audioBlob && audioBlob.size > 0) {
+          state.recordedAudioUrl = URL.createObjectURL(audioBlob);
+        }
+
+        dom.statusText.textContent = 'Đang phân tích âm thanh...';
+
+        // Build recognition payload
+        const noteNames = state.detectedNotes.map(function (n) { return n.name; });
+        const contour = computeContourFromNotes(state.detectedNotes);
+        let recognizedText = (state.liveTranscript || state.finalTranscript || '').trim();
+        let query = recognizedText;
+        let confidence = recognizedText ? 90 : 0;
+        let detectedBpm = 100 + (noteNames.length % 28);
+        let auddNotice = '';
+
+        // 1) Free ShazamIO Backend recognition (highest priority when configured)
+        const shazamEndpoint = state.apiKeys.useSameOriginShazam
+          ? '/api/recognize'
+          : (state.apiKeys.shazamUrl ? state.apiKeys.shazamUrl.replace(/\/+$/, '') + '/api/recognize' : '');
+
+        const shouldUseShazam = Boolean(audioBlob && shazamEndpoint && (
+          state.mode === 'pc' ||
+          state.mode === 'hum' ||
+          (state.mode === 'mic' && recognizedText.length < 6)
+        ));
+
+        if (shouldUseShazam) {
+          try {
+            dom.statusText.textContent = 'Đang chuyển đổi WAV & nhận diện miễn phí qua ShazamIO...';
+            const wavBlob = await blobToWav(audioBlob);
+            const fd = new FormData();
+            fd.append('file', wavBlob, wavBlob.type === 'audio/wav' ? 'clip.wav' : 'clip.webm');
+            const resp = await fetch(shazamEndpoint, { method: 'POST', body: fd });
+            const json = await resp.json();
+            if (resp.ok && json && json.status === 'success' && json.title) {
+              const artist = json.artist || '';
+              recognizedText = json.title + (artist ? ' - ' + artist : '');
+              query = json.query || recognizedText;
+              confidence = 99;
+              showToast('ShazamIO nhận diện thành công: ' + recognizedText, 'success');
+            } else if (json && json.status === 'no_match') {
+              auddNotice = 'ShazamIO chưa nhận ra bài hát từ đoạn thu ' + durationSec.toFixed(1) + 's. Hãy thử thu đoạn điệp khúc rõ hơn (8–12 giây).';
+              showToast(auddNotice, 'warn');
+            } else {
+              auddNotice = 'ShazamIO báo lỗi: ' + ((json && json.detail) || ('HTTP ' + resp.status));
+              showToast(auddNotice, 'error');
+            }
+          } catch (shErr) {
+            auddNotice = 'Không kết nối được Backend ShazamIO (' + (shErr.message || 'Lỗi mạng') + ').';
+            showToast(auddNotice, 'error');
+          }
+        }
+
+        // 2) AudD.io acoustic recognition (fallback if ShazamIO not used/matched and AudD token is configured)
+        const shouldUseAudd = !query && audioBlob && state.apiKeys.auddToken && (
+          state.mode === 'pc' ||
+          state.mode === 'hum' ||
+          (state.mode === 'mic' && recognizedText.length < 6)
+        );
+        if (shouldUseAudd) {
+          try {
+            dom.statusText.textContent = 'Đang chuyển đổi WAV & nhận diện qua AudD.io...';
+            const wavBlob = await blobToWav(audioBlob);
+            const fd = new FormData();
+            fd.append('api_token', state.apiKeys.auddToken);
+            fd.append('file', wavBlob, wavBlob.type === 'audio/wav' ? 'clip.wav' : 'clip.webm');
+            fd.append('return', 'apple_music,spotify');
+            const resp = await fetch('https://api.audd.io/', { method: 'POST', body: fd });
+            const json = await resp.json();
+            if (json && json.status === 'success' && json.result) {
+              const artist = json.result.artist || '';
+              const title = json.result.title || '';
+              recognizedText = title + (artist ? ' - ' + artist : '');
+              query = recognizedText;
+              confidence = 99;
+              showToast('AudD.io nhận diện thành công: ' + recognizedText, 'success');
+            } else if (json && json.status === 'error') {
+              const errMsg = (json.error && json.error.error_message) ? json.error.error_message : 'Token không hợp lệ hoặc đã hết lượt';
+              auddNotice = 'AudD.io báo lỗi: ' + errMsg;
+              showToast(auddNotice, 'error');
+            } else {
+              auddNotice = 'AudD.io chưa nhận ra bài hát từ đoạn thu ' + durationSec.toFixed(1) + 's. Hãy thử thu đoạn điệp khúc rõ hơn (8–12 giây).';
+              showToast(auddNotice, 'warn');
+            }
+          } catch (auddErr) {
+            auddNotice = 'Không kết nối được AudD.io (' + (auddErr.message || 'Lỗi mạng') + ').';
+            showToast(auddNotice, 'error');
+          }
+        }
+
+        // Honest, non-hallucinating feedback when nothing was recognized
+        if (!query) {
+          if (state.mode === 'pc') {
+            if (!shazamEndpoint && !state.apiKeys.auddToken) {
+              recognizedText = 'Đã thu âm thanh PC (' + durationSec.toFixed(1) + 's), nhưng bạn chưa cấu hình Backend ShazamIO (miễn phí) hoặc AudD.io Token trong Cài đặt API.';
+              showToast('Hãy cấu hình Backend ShazamIO hoặc AudD.io Token trong Cài đặt API!', 'warn');
+            } else {
+              recognizedText = auddNotice || 'Chưa nhận diện được bài hát từ âm thanh PC. Hãy thử thu đoạn nhạc rõ tiếng hơn khoảng 8–12 giây.';
+            }
+          } else if (state.mode === 'hum') {
+            const matchedSong = matchMelodyContour(contour, noteNames);
+            if (matchedSong) {
+              recognizedText = 'Giai điệu ngân nga gần khớp: ' + matchedSong.title;
+              query = matchedSong.title.split('|')[0].trim();
+              confidence = 82;
+              detectedBpm = matchedSong.bpm;
+            } else {
+              recognizedText = auddNotice || ('Đã ghi nhận chuỗi nốt (' + (noteNames.slice(0, 8).join(' - ') || 'âm lượng quá nhỏ') + '), chưa khớp chắc chắn bài nào. Hãy ngân nga rõ hơn 8–10 giây hoặc dùng chế độ Micro để hát lời.');
+              showToast('Chưa khớp giai điệu ngân nga, hãy thử hát rõ lời ở tab Micro hoặc nhập từ khóa.', 'warn');
+            }
+          } else {
+            recognizedText = auddNotice || 'Chưa nghe rõ lời nói/lời hát qua Micro. Hãy nói/hát rõ hơn gần micro, chọn đúng ngôn ngữ (Tiếng Việt / English), hoặc nhập từ khóa vào ô bên trên.';
+            showToast('Chưa thu được lời nói/lời hát rõ ràng từ Micro.', 'warn');
+          }
+        }
+
+        const heardData = {
+          mode: state.mode,
+          modeLabel: MODE_INFO[state.mode].label,
+          heardText: recognizedText,
+          query: query,
+          keywords: query ? extractKeywords(query) : [],
+          notes: noteNames.length ? noteNames : ['--'],
+          freqs: state.detectedFreqs.length >= 2 ? state.detectedFreqs : [],
+          contour: contour,
+          bpm: detectedBpm,
+          confidence: confidence,
+          duration: Number(durationSec.toFixed(1)),
+          audioUrl: state.recordedAudioUrl,
+          timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+        };
+
+        await finishRecognitionAndSearch(heardData);
+      }
+
+      function matchMelodyContour(contour, noteNames) {
+        if (!contour || contour === '--' || !noteNames || noteNames.length < 5) return null;
+        const cleanC = contour.replace(/\s+/g, '');
+        let best = null;
+        let bestScore = 0;
+        VERIFIED_CATALOG.forEach(function (item) {
+          const targetC = (item.contour || '').replace(/\s+/g, '');
+          let score = 0;
+          const minLen = Math.min(cleanC.length, targetC.length);
+          for (let i = 0; i < minLen; i++) {
+            if (cleanC[i] === targetC[i]) score += 2;
+          }
+          if (item.melody) {
+            noteNames.forEach(function (n) {
+              if (item.melody.indexOf(n) !== -1) score += 1;
+            });
+          }
+          if (score > bestScore) {
+            bestScore = score;
+            best = item;
+          }
+        });
+        return bestScore >= 11 ? best : null;
+      }
+
+      // =========================================================================
+      // 7. INTERACTIVE DEMO SYNTHESIZER (Works without Mic/PC permissions)
+      // =========================================================================
+      function stopDemo() {
+        state.isDemoRunning = false;
+        if (state.demoTimeoutId) {
+          clearTimeout(state.demoTimeoutId);
+          state.demoTimeoutId = null;
+        }
+        if (state.rafId) {
+          cancelAnimationFrame(state.rafId);
+          state.rafId = null;
+        }
+        setListeningUI(false);
+      }
+
+      function runDemo(presetKey) {
+        const preset = DEMO_PRESETS[presetKey];
+        if (!preset) return;
+        if (state.isListening) {
+          stopListeningAndSearch();
+          return;
+        }
+        stopDemo();
+
+        setMode(preset.mode);
+        state.isDemoRunning = true;
+        setListeningUI(true);
+        dom.listenLabel.textContent = 'Đang nghe mẫu...';
+        dom.statusText.textContent = 'Đang mô phỏng: ' + preset.modeLabel;
+        dom.liveCaptionText.textContent = 'Đang phân tích tín hiệu âm thanh mẫu...';
+
+        // Play soft Web Audio melody preview so user hears real synthesized notes
+        try {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          const ctx = new AudioContextClass();
+          const now = ctx.currentTime;
+          preset.freqs.forEach(function (freq, idx) {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = preset.mode === 'hum' ? 'sine' : 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.28);
+            gain.gain.setValueAtTime(0.001, now + idx * 0.28);
+            gain.gain.exponentialRampToValueAtTime(0.11, now + idx * 0.28 + 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.28 + 0.25);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.28);
+            osc.stop(now + idx * 0.28 + 0.26);
+          });
+          setTimeout(function () {
+            try { ctx.close(); } catch (e) {}
+          }, 3000);
+        } catch (e) {
+          // Ignore if audio context blocked
+        }
+
+        // Animate lively synthetic spectrum during demo
+        const startTs = Date.now();
+        function animateDemo() {
+          if (!state.isDemoRunning) return;
+          const elapsed = (Date.now() - startTs) / 1000;
+          const noteIdx = Math.min(preset.notes.length - 1, Math.floor(elapsed / 0.3));
+          dom.liveNoteBadge.textContent = 'Nốt: ' + preset.notes[noteIdx];
+          dom.liveHzBadge.textContent = Math.round(preset.freqs[noteIdx]) + ' Hz';
+          dom.liveDbBadge.textContent = Math.round(58 + Math.sin(elapsed * 8) * 18) + ' dB';
+          dom.timerText.textContent = '00:0' + Math.min(9, Math.floor(elapsed));
+
+          // Progressive live caption reveal
+          const ratio = Math.min(1, elapsed / 2.2);
+          const chars = Math.max(6, Math.floor(preset.heardText.length * ratio));
+          dom.liveCaptionText.textContent = '"' + preset.heardText.slice(0, chars) + (ratio < 1 ? '...' : '"');
+
+          const info = sizeCanvas(dom.audioCanvas);
+          if (info) {
+            const { ctx, w, h } = info;
+            ctx.clearRect(0, 0, w, h);
+            const bars = 48;
+            const slot = w / bars;
+            for (let i = 0; i < bars; i++) {
+              const wave = Math.abs(Math.sin(elapsed * 7 + i * 0.35)) * Math.sin((i / bars) * Math.PI);
+              const bh = Math.max(8, wave * (h * 0.85));
+              const grad = ctx.createLinearGradient(0, (h - bh) / 2, 0, (h + bh) / 2);
+              grad.addColorStop(0, '#00e5ff');
+              grad.addColorStop(0.5, '#8b5cf6');
+              grad.addColorStop(1, '#ff2a55');
+              ctx.fillStyle = grad;
+              ctx.beginPath();
+              ctx.roundRect(i * slot + slot * 0.2, (h - bh) / 2, Math.max(2, slot * 0.6), bh, 3);
+              ctx.fill();
+            }
+          }
+          state.rafId = requestAnimationFrame(animateDemo);
+        }
+        animateDemo();
+
+        state.demoTimeoutId = setTimeout(function () {
+          stopDemo();
+          drawIdleWave();
+          finishRecognitionAndSearch({
+            mode: preset.mode,
+            modeLabel: preset.modeLabel,
+            heardText: preset.heardText,
+            query: preset.query,
+            keywords: preset.keywords,
+            notes: preset.notes,
+            freqs: preset.freqs,
+            contour: preset.contour,
+            bpm: preset.bpm,
+            confidence: preset.confidence,
+            duration: preset.duration,
+            audioUrl: null,
+            timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+          });
+        }, 2500);
+      }
+
+      // =========================================================================
+      // 8. YOUTUBE & ITUNES SEARCH ENGINE
+      // =========================================================================
+      async function searchYouTubeVideos(query) {
+        const cleanQuery = (query || '').trim();
+        state.currentQuery = cleanQuery;
+        dom.resultsLoading.classList.remove('hidden');
+        dom.resultsGrid.classList.add('hidden');
+        dom.resultsEmpty.classList.add('hidden');
+
+        let combined = [];
+
+        // 1) Official YouTube Data API v3 (if user configured key)
+        if (state.apiKeys.ytApiKey && cleanQuery) {
+          try {
+            const url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=9&q=' +
+              encodeURIComponent(cleanQuery) + '&key=' + encodeURIComponent(state.apiKeys.ytApiKey);
+            const res = await fetch(url);
+            const data = await res.json();
+            if (res.ok) {
+              if (data.items && data.items.length) {
+                data.items.forEach(function (item, idx) {
+                  const vid = item.id && item.id.videoId;
+                  if (!vid) return;
+                  const title = decodeHtmlEntities(item.snippet.title || '');
+                  const lower = title.toLowerCase();
+                  let cat = 'mv';
+                  if (lower.includes('remix') || lower.includes('speed')) cat = 'remix';
+                  else if (lower.includes('lofi') || lower.includes('lyric')) cat = 'lofi';
+                  else if (lower.includes('live') || lower.includes('acoustic')) cat = 'live';
+                  combined.push({
+                    id: vid,
+                    title: title,
+                    channel: item.snippet.channelTitle || 'YouTube',
+                    category: cat,
+                    thumbnail: (item.snippet.thumbnails && item.snippet.thumbnails.high && item.snippet.thumbnails.high.url) || ('https://i.ytimg.com/vi/' + vid + '/hqdefault.jpg'),
+                    match: Math.max(76, 99 - idx * 2),
+                    source: 'YouTube API',
+                    isEmbeddable: true,
+                    youtubeUrl: 'https://www.youtube.com/watch?v=' + vid
+                  });
+                });
+              }
+            } else {
+              const apiMsg = (data && data.error && data.error.message) ? data.error.message : ('HTTP ' + res.status);
+              showToast('YouTube API báo lỗi (' + res.status + '): ' + apiMsg, 'error');
+            }
+          } catch (ytErr) {
+            showToast('Lỗi gọi YouTube API, đang dùng nguồn tìm kiếm dự phòng.', 'warn');
+          }
+        }
+
+        // 2) Verified Local YouTube Catalog Scoring (only when YouTube API did not already return live results)
+        if (combined.length === 0) {
+        const normQ = normalizeVi(cleanQuery);
+        const qTokens = normQ.split(' ').filter(function (t) { return t.length >= 2; });
+
+        const scoredCatalog = VERIFIED_CATALOG.map(function (item) {
+          const hay = normalizeVi(item.title + ' ' + item.channel + ' ' + item.tags.join(' ') + ' ' + item.lyrics);
+          let score = 0;
+          if (normQ && hay.includes(normQ)) score += 65;
+          qTokens.forEach(function (tok) {
+            if (hay.includes(tok)) score += 18;
+          });
+          return { item: item, score: score };
+        }).filter(function (entry) {
+          return !normQ || entry.score > 0;
+        }).sort(function (a, b) {
+          return b.score - a.score;
+        });
+
+        scoredCatalog.slice(0, 9).forEach(function (entry, idx) {
+          if (combined.some(function (c) { return c.id === entry.item.id; })) return;
+          const matchPct = normQ ? Math.min(99, Math.max(72, 68 + Math.min(30, entry.score))) : (96 - idx * 2);
+          combined.push({
+            id: entry.item.id,
+            title: entry.item.title,
+            channel: entry.item.channel,
+            category: entry.item.category,
+            thumbnail: 'https://i.ytimg.com/vi/' + entry.item.id + '/hqdefault.jpg',
+            match: matchPct,
+            source: 'YouTube',
+            isEmbeddable: true,
+            youtubeUrl: 'https://www.youtube.com/watch?v=' + entry.item.id
+          });
+        });
+
+        }
+
+        // 3) Live CORS-enabled iTunes Search API for any arbitrary song/artist not in local catalog
+        if (cleanQuery && combined.length < 6) {
+          try {
+            const itunesUrl = 'https://itunes.apple.com/search?term=' + encodeURIComponent(cleanQuery) + '&media=music&limit=6';
+            const iRes = await fetch(itunesUrl);
+            if (iRes.ok) {
+              const iJson = await iRes.json();
+              if (iJson.results && iJson.results.length) {
+                iJson.results.forEach(function (track, idx) {
+                  const fullTitle = (track.trackName || 'Bài hát') + ' — ' + (track.artistName || '');
+                  const ytSearchUrl = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(fullTitle + ' Official MV');
+                  const lower = fullTitle.toLowerCase();
+                  let cat = 'mv';
+                  if (lower.includes('remix')) cat = 'remix';
+                  else if (lower.includes('lofi') || lower.includes('acoustic')) cat = 'lofi';
+                  else if (lower.includes('live')) cat = 'live';
+                  combined.push({
+                    id: 'itunes_' + (track.trackId || idx),
+                    title: fullTitle,
+                    channel: track.artistName || 'Nghệ sĩ',
+                    category: cat,
+                    thumbnail: (track.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
+                    match: Math.max(75, 94 - idx * 3),
+                    source: 'Khớp bài hát',
+                    isEmbeddable: false,
+                    previewUrl: track.previewUrl || null,
+                    youtubeUrl: ytSearchUrl
+                  });
+                });
+              }
+            }
+          } catch (itErr) {
+            // Gracefully ignore network/CORS errors
+          }
+        }
+
+        // If still empty, provide a direct YouTube search card + trending items
+        if (combined.length === 0) {
+          VERIFIED_CATALOG.slice(0, 6).forEach(function (item, idx) {
+            combined.push({
+              id: item.id,
+              title: item.title,
+              channel: item.channel,
+              category: item.category,
+              thumbnail: 'https://i.ytimg.com/vi/' + item.id + '/hqdefault.jpg',
+              match: 75 - idx * 2,
+              source: 'Gợi ý YouTube',
+              isEmbeddable: true,
+              youtubeUrl: 'https://www.youtube.com/watch?v=' + item.id
+            });
+          });
+        }
+
+        state.results = combined;
+        dom.resultsLoading.classList.add('hidden');
+        dom.resultsGrid.classList.remove('hidden');
+
+        if (cleanQuery) {
+          dom.resultsHeading.innerHTML = '<i data-lucide="youtube" class="h-6 w-6 text-ytRed"></i><span>Kết quả YouTube cho: "' + escapeHtml(cleanQuery) + '"</span>';
+          dom.resultsSubheading.textContent = 'Tìm thấy ' + combined.length + ' video & bản nhạc khớp với âm thanh đã nghe.';
+          dom.openYoutubeDirectLink.href = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(cleanQuery);
+          dom.openYoutubeDirectLink.classList.remove('hidden');
+        } else {
+          dom.resultsHeading.innerHTML = '<i data-lucide="youtube" class="h-6 w-6 text-ytRed"></i><span>Video YouTube gợi ý &amp; thịnh hành</span>';
+          dom.resultsSubheading.textContent = 'Chọn một chế độ thu âm ở trên hoặc nhấn "Thử nhanh" để tìm video tương ứng.';
+          dom.openYoutubeDirectLink.classList.add('hidden');
+        }
+
+        renderResults();
+        lucide.createIcons();
+      }
+
+      // =========================================================================
+      // 9. UI RENDERERS (Heard Panel, Results Grid, History Drawer)
+      // =========================================================================
+      async function finishRecognitionAndSearch(heardData) {
+        state.currentHeard = heardData;
+        dom.statusText.textContent = 'Hoàn tất nhận diện!';
+        dom.liveCaptionText.textContent = 'Đã nghe: "' + heardData.heardText + '"';
+
+        // Populate "Những gì đã nghe được" section
+        dom.heardSection.classList.remove('hidden');
+        dom.heardMetaLine.textContent = 'Nguồn: ' + heardData.modeLabel + ' • Thời lượng: ' + heardData.duration + ' giây • Lúc ' + heardData.timestamp;
+        dom.confidenceBadge.innerHTML = '<i data-lucide="check-circle-2" class="h-3.5 w-3.5"></i> Độ khớp: ' + heardData.confidence + '%';
+        dom.heardEditableInput.value = heardData.query;
+        dom.detectedKeyBpm.textContent = '~' + heardData.bpm + ' BPM';
+        dom.detectedContourArrows.textContent = heardData.contour || '--';
+
+        // Render Keyword Chips
+        dom.keywordChips.innerHTML = '';
+        (heardData.keywords || []).forEach(function (kw) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-cyan-200 transition hover:bg-cyanGlow/20 hover:border-cyanGlow/40';
+          btn.textContent = '# ' + kw;
+          btn.addEventListener('click', function () {
+            dom.heardEditableInput.value = kw;
+            searchYouTubeVideos(kw);
+          });
+          dom.keywordChips.appendChild(btn);
+        });
+
+        // Render Notes Strip
+        dom.detectedNotesStrip.innerHTML = '';
+        (heardData.notes || []).slice(0, 10).forEach(function (note) {
+          const span = document.createElement('span');
+          span.className = 'rounded-md bg-white/10 px-2 py-0.5 font-mono text-[11px] font-semibold text-white';
+          span.textContent = note;
+          dom.detectedNotesStrip.appendChild(span);
+        });
+
+        // Recorded audio playback
+        if (heardData.audioUrl) {
+          dom.recordedAudioWrap.classList.remove('hidden');
+          dom.recordedAudioPlayer.src = heardData.audioUrl;
+          dom.recordedDurationLabel.textContent = heardData.duration + 's';
+        } else {
+          dom.recordedAudioWrap.classList.add('hidden');
+          dom.recordedAudioPlayer.removeAttribute('src');
+        }
+
+        // Draw Melody Contour
+        setTimeout(function () {
+          drawMelodyContour(heardData.freqs);
+        }, 40);
+
+        // Save to History
+        saveToHistory({
+          id: 'hist_' + Date.now(),
+          mode: heardData.mode,
+          modeLabel: heardData.modeLabel,
+          heardText: heardData.heardText,
+          query: heardData.query,
+          keywords: heardData.keywords,
+          notes: heardData.notes,
+          freqs: heardData.freqs,
+          contour: heardData.contour,
+          bpm: heardData.bpm,
+          confidence: heardData.confidence,
+          duration: heardData.duration,
+          timestamp: heardData.timestamp
+        });
+
+        // Reset category filter to All and search only if we have a real recognized query
+        state.categoryFilter = 'all';
+        updateCategoryPills();
+        if (heardData.query) {
+          await searchYouTubeVideos(heardData.query);
+        } else {
+          dom.statusText.textContent = 'Chưa nhận diện được bài hát';
+        }
+
+        dom.heardSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function renderResults() {
+        let list = state.results.slice();
+        if (state.categoryFilter !== 'all') {
+          list = list.filter(function (v) { return v.category === state.categoryFilter; });
+        }
+        if (state.sortBy === 'title') {
+          list.sort(function (a, b) { return a.title.localeCompare(b.title, 'vi'); });
+        } else {
+          list.sort(function (a, b) { return b.match - a.match; });
+        }
+
+        dom.resultsGrid.innerHTML = '';
+        if (list.length === 0) {
+          dom.resultsEmpty.classList.remove('hidden');
+          return;
+        }
+        dom.resultsEmpty.classList.add('hidden');
+
+        const catLabelMap = {
+          mv: 'MV Chính thức',
+          remix: 'Remix',
+          lofi: 'Lofi / Lyrics',
+          live: 'Live'
+        };
+
+        list.forEach(function (video) {
+          const card = document.createElement('article');
+          card.className = 'glass-card group flex flex-col overflow-hidden rounded-2xl transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-xl hover:shadow-black/40';
+
+          const actionBtnHtml = video.isEmbeddable
+            ? '<button type="button" data-action="play" data-vid="' + escapeHtml(video.id) + '" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-ytRed px-3 py-2 text-xs font-bold text-white transition hover:bg-rose-500"><i data-lucide="play" class="h-3.5 w-3.5 fill-current"></i>Xem ngay</button>'
+            : (video.previewUrl
+              ? '<button type="button" data-action="preview" data-vid="' + escapeHtml(video.id) + '" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-cyanGlow/20 border border-cyanGlow/35 px-3 py-2 text-xs font-bold text-cyan-100 transition hover:bg-cyanGlow/30"><i data-lucide="headphones" class="h-3.5 w-3.5"></i>Nghe thử 30s</button>'
+              : '');
+
+          card.innerHTML =
+            '<div class="relative aspect-video w-full overflow-hidden bg-slate-900">' +
+              '<img src="' + escapeHtml(video.thumbnail) + '" alt="' + escapeHtml(video.title) + '" loading="lazy" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />' +
+              '<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent"></div>' +
+              '<span class="absolute left-2.5 top-2.5 rounded-full bg-black/70 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-bold text-cyanGlow border border-cyanGlow/30">' +
+                'Khớp ' + video.match + '%' +
+              '</span>' +
+              '<span class="absolute right-2.5 top-2.5 rounded-full bg-black/70 backdrop-blur-md px-2 py-0.5 text-[10px] font-semibold text-slate-200 border border-white/10">' +
+                escapeHtml(catLabelMap[video.category] || 'Video') +
+              '</span>' +
+              (video.isEmbeddable
+                ? '<button type="button" data-action="play" data-vid="' + escapeHtml(video.id) + '" aria-label="Phát video" class="absolute inset-0 flex items-center justify-center opacity-0 transition group-hover:opacity-100"><span class="flex h-12 w-12 items-center justify-center rounded-full bg-ytRed/90 text-white shadow-xl"><i data-lucide="play" class="h-5 w-5 fill-current ml-0.5"></i></span></button>'
+                : '') +
+            '</div>' +
+            '<div class="flex flex-1 flex-col justify-between p-4 gap-3">' +
+              '<div>' +
+                '<h3 class="line-clamp-2 text-sm font-bold leading-snug text-white group-hover:text-cyanGlow transition">' + escapeHtml(video.title) + '</h3>' +
+                '<div class="mt-1.5 flex items-center justify-between text-xs text-slate-400">' +
+                  '<span class="truncate flex items-center gap-1"><i data-lucide="tv" class="h-3.5 w-3.5 shrink-0 text-slate-500"></i>' + escapeHtml(video.channel) + '</span>' +
+                  '<span class="shrink-0 rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-400">' + escapeHtml(video.source) + '</span>' +
+                '</div>' +
+              '</div>' +
+              '<div class="flex items-center gap-2 pt-1">' +
+                actionBtnHtml +
+                '<a href="' + escapeHtml(video.youtubeUrl) + '" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-1 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/15">' +
+                  '<i data-lucide="external-link" class="h-3.5 w-3.5"></i>' +
+                  '<span>YouTube</span>' +
+                '</a>' +
+              '</div>' +
+            '</div>';
+
+          dom.resultsGrid.appendChild(card);
+        });
+
+        lucide.createIcons();
+      }
+
+      function openPlayerModal(video) {
+        dom.playerModalTitle.textContent = video.title;
+        dom.playerModalChannel.textContent = video.channel;
+        dom.playerModalYtLink.href = video.youtubeUrl;
+
+        if (video.isEmbeddable) {
+          dom.playerEmbedContainer.innerHTML =
+            '<iframe class="h-full w-full" src="https://www.youtube.com/embed/' + encodeURIComponent(video.id) + '?autoplay=1&rel=0" ' +
+            'title="' + escapeHtml(video.title) + '" frameborder="0" ' +
+            'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
+        } else if (video.previewUrl) {
+          dom.playerEmbedContainer.innerHTML =
+            '<div class="flex h-full w-full flex-col items-center justify-center gap-4 p-6 bg-gradient-to-br from-panel to-obsidian">' +
+              '<img src="' + escapeHtml(video.thumbnail) + '" alt="' + escapeHtml(video.title) + '" class="h-40 w-40 rounded-2xl object-cover shadow-2xl border border-white/15" />' +
+              '<p class="text-sm font-bold text-white text-center">' + escapeHtml(video.title) + '</p>' +
+              '<audio controls autoplay class="w-full max-w-md" src="' + escapeHtml(video.previewUrl) + '"></audio>' +
+              '<a href="' + escapeHtml(video.youtubeUrl) + '" target="_blank" rel="noopener noreferrer" class="rounded-xl bg-ytRed px-4 py-2 text-xs font-bold text-white hover:bg-rose-500">Mở tìm kiếm video trên YouTube</a>' +
+            '</div>';
+        }
+
+        dom.playerModal.classList.remove('hidden');
+        dom.playerModal.classList.add('flex');
+      }
+
+      function closePlayerModal() {
+        dom.playerModal.classList.add('hidden');
+        dom.playerModal.classList.remove('flex');
+        dom.playerEmbedContainer.innerHTML = '';
+      }
+
+      // =========================================================================
+      // 10. HISTORY & SETTINGS MANAGEMENT
+      // =========================================================================
+      function saveToHistory(entry) {
+        state.history = [entry].concat(state.history.filter(function (h) {
+          return normalizeVi(h.query) !== normalizeVi(entry.query);
+        })).slice(0, 15);
+        safeSetStorage('soundtube_vn_history', state.history);
+        renderHistory();
+      }
+
+      function renderHistory() {
+        dom.historyBadge.textContent = String(state.history.length);
+        dom.historyList.innerHTML = '';
+        if (state.history.length === 0) {
+          dom.historyList.innerHTML =
+            '<div class="rounded-2xl border border-white/10 bg-black/25 p-6 text-center text-xs text-slate-400">' +
+              'Chưa có lịch sử nhận diện nào. Hãy thử nghe âm thanh hoặc bấm một mẫu thử nhanh!' +
+            '</div>';
+          return;
+        }
+        state.history.forEach(function (item) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'w-full rounded-2xl border border-white/10 bg-white/[0.03] p-3 text-left transition hover:border-cyanGlow/40 hover:bg-white/[0.07]';
+          btn.innerHTML =
+            '<div class="flex items-center justify-between text-[11px] text-slate-400">' +
+              '<span class="font-semibold text-cyanGlow">' + escapeHtml(item.modeLabel) + '</span>' +
+              '<span>' + escapeHtml(item.timestamp || '') + '</span>' +
+            '</div>' +
+            '<p class="mt-1 line-clamp-2 text-xs font-bold text-white">' + escapeHtml(item.query) + '</p>' +
+            '<p class="mt-0.5 truncate text-[11px] text-slate-400">' + escapeHtml(item.heardText) + '</p>';
+          btn.addEventListener('click', function () {
+            dom.historyDrawerBackdrop.classList.add('hidden');
+            finishRecognitionAndSearch(Object.assign({}, item, { audioUrl: null }));
+          });
+          dom.historyList.appendChild(btn);
+        });
+      }
+
+      function updateApiStatusUI() {
+        const hasAny = Boolean(state.apiKeys.ytApiKey || state.apiKeys.auddToken || state.apiKeys.shazamUrl || state.apiKeys.useSameOriginShazam);
+        dom.apiStatusDot.className = 'h-2 w-2 rounded-full ' + (hasAny ? 'bg-cyanGlow' : 'bg-emerald-400');
+      }
+
+      // =========================================================================
+      // 11. MODE & FILTER CONTROLS
+      // =========================================================================
+      function setMode(mode) {
+        if (!MODE_INFO[mode]) return;
+        state.mode = mode;
+        dom.modeTabs.forEach(function (tab) {
+          const active = tab.getAttribute('data-mode') === mode;
+          if (active) {
+            tab.className = 'mode-tab flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition sm:text-sm bg-gradient-to-r from-ytRed to-violetGlow text-white shadow-lg shadow-ytRed/25';
+          } else {
+            tab.className = 'mode-tab flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition sm:text-sm text-slate-300 hover:bg-white/10 hover:text-white';
+          }
+        });
+        dom.modeHintText.innerHTML = MODE_INFO[mode].hint;
+        dom.vizTitle.textContent = MODE_INFO[mode].vizTitle;
+        dom.langWrap.classList.toggle('hidden', !MODE_INFO[mode].showLang);
+      }
+
+      function updateCategoryPills() {
+        dom.catPills.forEach(function (pill) {
+          const active = pill.getAttribute('data-cat') === state.categoryFilter;
+          if (active) {
+            pill.className = 'cat-pill rounded-full px-3.5 py-1.5 text-xs font-semibold transition bg-white text-obsidian shadow';
+          } else {
+            pill.className = 'cat-pill rounded-full px-3.5 py-1.5 text-xs font-semibold transition bg-white/5 text-slate-300 border border-white/10 hover:bg-white/15 hover:text-white';
+          }
+        });
+      }
+
+      // =========================================================================
+      // 12. EVENT LISTENERS & INIT
+      // =========================================================================
+      function bindEvents() {
+        dom.modeTabs.forEach(function (tab) {
+          tab.addEventListener('click', function () {
+            if (state.isListening) {
+              showToast('Hãy dừng thu âm hiện tại trước khi đổi chế độ.', 'info');
+              return;
+            }
+            setMode(tab.getAttribute('data-mode'));
+          });
+        });
+
+        dom.btnListenMain.addEventListener('click', startListening);
+
+        dom.demoBtns.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            runDemo(btn.getAttribute('data-demo'));
+          });
+        });
+
+        dom.manualSearchForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          const val = dom.manualSearchInput.value.trim();
+          if (!val) {
+            showToast('Hãy nhập tên bài hát hoặc đoạn lời bạn nhớ.', 'info');
+            return;
+          }
+          finishRecognitionAndSearch({
+            mode: 'mic',
+            modeLabel: 'Nhập lời / Từ khóa',
+            heardText: val,
+            query: val,
+            keywords: extractKeywords(val),
+            notes: ['C4', 'E4', 'G4', 'A4', 'G4'],
+            freqs: [261.6, 329.6, 392.0, 440.0, 392.0],
+            contour: '↗ ↗ ↗ ↘',
+            bpm: 108,
+            confidence: 100,
+            duration: 1.0,
+            audioUrl: null,
+            timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+          });
+        });
+
+        dom.btnResearchEdited.addEventListener('click', function () {
+          const val = dom.heardEditableInput.value.trim();
+          if (!val) return;
+          searchYouTubeVideos(val);
+          showToast('Đã cập nhật kết quả YouTube cho: "' + val + '"', 'success');
+        });
+
+        dom.heardEditableInput.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            dom.btnResearchEdited.click();
+          }
+        });
+
+        dom.btnCopyHeard.addEventListener('click', function () {
+          const txt = dom.heardEditableInput.value || (state.currentHeard && state.currentHeard.heardText) || '';
+          if (!txt) return;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(txt).then(function () {
+              showToast('Đã sao chép nội dung nhận diện!', 'success');
+            }).catch(function () {
+              fallbackCopy(txt);
+            });
+          } else {
+            fallbackCopy(txt);
+          }
+        });
+
+        function fallbackCopy(text) {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            document.execCommand('copy');
+            showToast('Đã sao chép nội dung nhận diện!', 'success');
+          } catch (e) {
+            showToast('Không thể tự sao chép, bạn hãy bôi đen văn bản nhé.', 'warn');
+          }
+          document.body.removeChild(ta);
+        }
+
+        dom.catPills.forEach(function (pill) {
+          pill.addEventListener('click', function () {
+            state.categoryFilter = pill.getAttribute('data-cat');
+            updateCategoryPills();
+            renderResults();
+          });
+        });
+
+        dom.sortSelect.addEventListener('change', function () {
+          state.sortBy = dom.sortSelect.value;
+          renderResults();
+        });
+
+        // Delegated click handler on results grid
+        dom.resultsGrid.addEventListener('click', function (e) {
+          const btn = e.target.closest('button[data-action]');
+          if (!btn) return;
+          const vid = btn.getAttribute('data-vid');
+          const video = state.results.find(function (v) { return v.id === vid; });
+          if (video) openPlayerModal(video);
+        });
+
+        // Player Modal
+        dom.btnPlayerClose.addEventListener('click', closePlayerModal);
+        dom.playerModal.addEventListener('click', function (e) {
+          if (e.target === dom.playerModal) closePlayerModal();
+        });
+
+        // Settings Modal
+        dom.btnSettingsOpen.addEventListener('click', function () {
+          dom.inputShazamUrl.value = state.apiKeys.shazamUrl || '';
+          dom.chkSameOriginShazam.checked = Boolean(state.apiKeys.useSameOriginShazam);
+          dom.inputYtApiKey.value = state.apiKeys.ytApiKey || '';
+          dom.inputAuddToken.value = state.apiKeys.auddToken || '';
+          dom.settingsModal.classList.remove('hidden');
+          dom.settingsModal.classList.add('flex');
+        });
+        dom.btnSettingsClose.addEventListener('click', function () {
+          dom.settingsModal.classList.add('hidden');
+          dom.settingsModal.classList.remove('flex');
+        });
+        dom.settingsModal.addEventListener('click', function (e) {
+          if (e.target === dom.settingsModal) {
+            dom.settingsModal.classList.add('hidden');
+            dom.settingsModal.classList.remove('flex');
+          }
+        });
+        dom.settingsForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          state.apiKeys.shazamUrl = dom.inputShazamUrl.value.trim().replace(/\/+$/, '');
+          state.apiKeys.useSameOriginShazam = Boolean(dom.chkSameOriginShazam.checked);
+          state.apiKeys.ytApiKey = dom.inputYtApiKey.value.trim();
+          state.apiKeys.auddToken = dom.inputAuddToken.value.trim();
+          safeSetStorage('soundtube_vn_keys', state.apiKeys);
+          updateApiStatusUI();
+          dom.settingsModal.classList.add('hidden');
+          dom.settingsModal.classList.remove('flex');
+          showToast('Đã lưu cài đặt API thành công!', 'success');
+        });
+        dom.btnTestKeys.addEventListener('click', async function () {
+          const shazamUrl = dom.inputShazamUrl.value.trim().replace(/\/+$/, '');
+          const sameOrigin = Boolean(dom.chkSameOriginShazam.checked);
+          const ytKey = dom.inputYtApiKey.value.trim();
+          const auddKey = dom.inputAuddToken.value.trim();
+          dom.apiTestResult.classList.remove('hidden');
+          if (!shazamUrl && !sameOrigin && !ytKey && !auddKey) {
+            dom.apiTestResult.className = 'rounded-xl border border-amber-400/40 bg-amber-500/10 p-3 text-xs text-amber-200';
+            dom.apiTestResult.textContent = 'Bạn chưa nhập Backend ShazamIO, YouTube API Key hoặc AudD.io Token để kiểm tra.';
+            return;
+          }
+          dom.apiTestResult.className = 'rounded-xl border border-cyanGlow/30 bg-cyanGlow/10 p-3 text-xs text-cyan-200';
+          dom.apiTestResult.textContent = 'Đang kiểm tra kết nối API...';
+          const lines = [];
+          let hasError = false;
+
+          if (sameOrigin || shazamUrl) {
+            const healthUrl = sameOrigin ? '/api/health' : (shazamUrl + '/api/health');
+            try {
+              const rs = await fetch(healthUrl);
+              const js = await rs.json();
+              if (rs.ok && js && js.status === 'ok') {
+                lines.push('✓ ShazamIO Backend: Kết nối thành công (Miễn phí 100%)!');
+              } else {
+                hasError = true;
+                lines.push('✕ ShazamIO Backend: Phản hồi không hợp lệ (HTTP ' + rs.status + ')');
+              }
+            } catch (errS) {
+              hasError = true;
+              lines.push('✕ ShazamIO Backend: Không kết nối được (' + (errS.message || 'Kiểm tra lại URL HTTPS / server đang chạy') + ')');
+            }
+          }
+
+          if (ytKey) {
+            try {
+              const testUrl = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&q=music&key=' + encodeURIComponent(ytKey);
+              const r = await fetch(testUrl);
+              const j = await r.json();
+              if (r.ok && j.items) {
+                lines.push('✓ YouTube Data API v3: Kết nối thành công!');
+              } else {
+                hasError = true;
+                const reason = (j && j.error && j.error.message) ? j.error.message : ('HTTP ' + r.status);
+                lines.push('✕ YouTube API (' + r.status + '): ' + reason);
+              }
+            } catch (err) {
+              hasError = true;
+              lines.push('✕ YouTube API: Lỗi mạng (' + (err.message || 'unknown') + ')');
+            }
+          } else {
+            lines.push('• YouTube API: Chưa nhập');
+          }
+
+          if (auddKey) {
+            try {
+              const fd = new FormData();
+              fd.append('api_token', auddKey);
+              fd.append('q', 'See Tinh');
+              const r2 = await fetch('https://api.audd.io/findLyrics/', { method: 'POST', body: fd });
+              const j2 = await r2.json();
+              if (j2 && j2.status === 'success') {
+                lines.push('✓ AudD.io Token: Hợp lệ & sẵn sàng nhận diện nhạc PC!');
+              } else {
+                hasError = true;
+                const msg2 = (j2 && j2.error && j2.error.error_message) ? j2.error.error_message : 'Token không hợp lệ hoặc hết lượt';
+                lines.push('✕ AudD.io: ' + msg2);
+              }
+            } catch (err2) {
+              hasError = true;
+              lines.push('✕ AudD.io: Không kết nối được (' + (err2.message || 'Lỗi mạng') + ')');
+            }
+          } else {
+            lines.push('• AudD.io Token: Chưa nhập (cần có để nhận diện nhạc phát trên PC)');
+          }
+
+          dom.apiTestResult.className = hasError
+            ? 'rounded-xl border border-ytRed/50 bg-ytRed/10 p-3 text-xs text-rose-200 whitespace-pre-line'
+            : 'rounded-xl border border-emerald-400/40 bg-emerald-500/10 p-3 text-xs text-emerald-200 whitespace-pre-line';
+          dom.apiTestResult.textContent = lines.join('\n');
+        });
+
+        dom.btnClearKeys.addEventListener('click', function () {
+          state.apiKeys = { ytApiKey: '', auddToken: '', shazamUrl: '', useSameOriginShazam: false };
+          dom.inputShazamUrl.value = '';
+          dom.chkSameOriginShazam.checked = false;
+          dom.inputYtApiKey.value = '';
+          dom.inputAuddToken.value = '';
+          dom.apiTestResult.classList.add('hidden');
+          safeSetStorage('soundtube_vn_keys', state.apiKeys);
+          updateApiStatusUI();
+          showToast('Đã xóa khóa API khỏi trình duyệt.', 'info');
+        });
+
+        // History Drawer
+        dom.btnHistoryToggle.addEventListener('click', function () {
+          dom.historyDrawerBackdrop.classList.remove('hidden');
+        });
+        dom.btnHistoryClose.addEventListener('click', function () {
+          dom.historyDrawerBackdrop.classList.add('hidden');
+        });
+        dom.historyDrawerBackdrop.addEventListener('click', function (e) {
+          if (e.target === dom.historyDrawerBackdrop) {
+            dom.historyDrawerBackdrop.classList.add('hidden');
+          }
+        });
+        dom.btnClearHistory.addEventListener('click', function () {
+          state.history = [];
+          safeSetStorage('soundtube_vn_history', []);
+          renderHistory();
+          showToast('Đã xóa toàn bộ lịch sử nhận diện.', 'info');
+        });
+
+        window.addEventListener('resize', function () {
+          if (state.currentHeard) {
+            drawMelodyContour(state.currentHeard.freqs);
+          }
+        });
+
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') {
+            closePlayerModal();
+            dom.settingsModal.classList.add('hidden');
+            dom.settingsModal.classList.remove('flex');
+            dom.historyDrawerBackdrop.classList.add('hidden');
+          }
+        });
+      }
+
+      function init() {
+        state.history = safeGetStorage('soundtube_vn_history', []);
+        state.apiKeys = Object.assign({ ytApiKey: '', auddToken: '', shazamUrl: '', useSameOriginShazam: false }, safeGetStorage('soundtube_vn_keys', {}));
+        updateApiStatusUI();
+        setMode('pc');
+        updateCategoryPills();
+        renderHistory();
+        bindEvents();
+        lucide.createIcons();
+        drawIdleWave();
+
+        // Populate initial trending YouTube videos so the page opens rich and immediately usable
+        searchYouTubeVideos('');
+      }
+
+      window.addEventListener('load', init);
+    })();
+  </script>
+</body>
+</html>

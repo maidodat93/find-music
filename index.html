@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SoundTube VN — Tìm Kiếm Video YouTube Bằng Âm Thanh</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Tìm Nhạc — Tìm Kiếm Video YouTube Bằng Âm Thanh</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -94,6 +94,22 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+    button, a, select, input {
+      touch-action: manipulation;
+    }
+    .safe-bottom {
+      padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    }
+    .ad-slot {
+      border: 1px dashed rgba(255, 255, 255, 0.16);
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.015),
+        rgba(255, 255, 255, 0.015) 10px,
+        rgba(255, 255, 255, 0.03) 10px,
+        rgba(255, 255, 255, 0.03) 20px
+      );
+    }
   </style>
 </head>
 <body class="bg-ambient min-h-screen antialiased selection:bg-ytRed/30 selection:text-white">
@@ -106,44 +122,69 @@
         </div>
         <div class="min-w-0">
           <div class="flex items-center gap-2">
-            <span class="truncate text-base font-extrabold tracking-tight text-white sm:text-lg">SoundTube VN</span>
-            <span class="hidden rounded-full bg-ytRed/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ytRed sm:inline-block">Audio AI</span>
+            <span class="truncate text-base font-extrabold tracking-tight text-white sm:text-lg">Tìm Nhạc</span>
           </div>
-          <p class="truncate text-xs text-slate-400">Nhận diện nhạc PC, giọng hát &amp; ngân nga tìm YouTube</p>
+          <p class="truncate text-xs text-slate-400">Nhận diện nhạc PC, giọng hát, ngân nga &amp; chuyển đổi audio</p>
         </div>
       </div>
 
       <div class="flex items-center gap-2 shrink-0">
+        <a href="#audioConverterSection" class="glass-pill flex items-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-medium text-slate-200 transition hover:bg-white/10 sm:px-3 sm:text-sm" title="Chuyển đổi Audio">
+          <i data-lucide="arrow-left-right" class="h-4 w-4 text-violet-300"></i>
+          <span class="hidden md:inline">Chuyển đổi Audio</span>
+        </a>
         <button id="btnHistoryToggle" type="button" class="glass-pill flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 transition hover:bg-white/10 sm:text-sm">
           <i data-lucide="history" class="h-4 w-4 text-cyanGlow"></i>
           <span class="hidden sm:inline">Lịch sử</span>
           <span id="historyBadge" class="rounded-full bg-white/10 px-1.5 py-0.5 text-[11px] font-semibold text-cyanGlow">0</span>
         </button>
-        <button id="btnSettingsOpen" type="button" class="glass-pill flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 transition hover:bg-white/10 sm:text-sm">
+        <button id="btnSettingsOpen" type="button" class="hidden glass-pill items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 transition hover:bg-white/10 sm:text-sm">
           <i data-lucide="sliders-horizontal" class="h-4 w-4 text-ytRed"></i>
           <span class="hidden sm:inline">Cài đặt API</span>
           <span id="apiStatusDot" class="h-2 w-2 rounded-full bg-emerald-400" title="Sẵn sàng"></span>
+        </button>
+
+        <button id="btnAdminLogout" type="button" class="hidden glass-pill items-center gap-1.5 rounded-xl border-amber-400/35 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-200 transition hover:bg-amber-500/20 sm:text-sm" title="Đăng xuất Quản trị viên">
+          <i data-lucide="log-out" class="h-4 w-4"></i>
+          <span class="hidden sm:inline">Thoát QT</span>
         </button>
       </div>
     </div>
   </header>
 
-  <main class="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
+  <!-- AD SLOT: Left & Right Sticky Skyscraper Rails (Desktop 2XL+) -->
+  <aside data-ad-slot="left_rail_160x600" class="ad-slot fixed left-3 top-24 z-30 hidden h-[600px] w-[160px] flex-col items-center justify-center rounded-2xl p-3 text-center 2xl:flex">
+    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Quảng cáo trái</span>
+    <span class="mt-1 font-mono text-[11px] text-slate-400">160 × 600</span>
+    <span class="mt-2 text-[10px] text-slate-500">Skyscraper Rail</span>
+  </aside>
+  <aside data-ad-slot="right_rail_160x600" class="ad-slot fixed right-3 top-24 z-30 hidden h-[600px] w-[160px] flex-col items-center justify-center rounded-2xl p-3 text-center 2xl:flex">
+    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Quảng cáo phải</span>
+    <span class="mt-1 font-mono text-[11px] text-slate-400">160 × 600</span>
+    <span class="mt-2 text-[10px] text-slate-500">Skyscraper Rail</span>
+  </aside>
+
+  <main class="mx-auto max-w-6xl space-y-6 px-4 py-5 pb-28 sm:px-6 sm:py-7 sm:pb-28">
+    <!-- AD SLOT: Top Leaderboard Banner (728x90 / 320x50) -->
+    <div data-ad-slot="top_leaderboard_728x90" class="ad-slot mx-auto flex min-h-[72px] w-full max-w-4xl flex-col items-center justify-center rounded-2xl px-4 py-3 text-center sm:min-h-[90px]">
+      <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Vị trí đặt quảng cáo đầu trang (Top Leaderboard)</span>
+      <span class="mt-0.5 font-mono text-[11px] text-slate-400">728 × 90 Desktop • 320 × 50 Mobile</span>
+    </div>
     <!-- Hero Listening Studio -->
     <section class="glass-card relative overflow-hidden rounded-3xl p-5 sm:p-8 shadow-2xl">
-      <!-- Mode Selector Tabs -->
-      <div class="mx-auto flex max-w-2xl flex-wrap items-center justify-center gap-2 rounded-2xl bg-black/35 p-1.5 border border-white/10">
-        <button type="button" data-mode="pc" class="mode-tab flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition sm:text-sm">
+      <!-- Mode Selector Tabs (Responsive 3-column grid for Mobile & Desktop) -->
+      <div class="mx-auto grid max-w-2xl grid-cols-3 gap-1.5 rounded-2xl bg-black/35 p-1.5 border border-white/10 sm:gap-2">
+        <button type="button" data-mode="pc" class="mode-tab flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 rounded-xl px-2 py-2.5 text-[11px] font-semibold transition sm:px-3.5 sm:text-sm text-center">
           <i data-lucide="monitor-speaker" class="h-4 w-4 shrink-0"></i>
-          <span>Âm thanh PC / Tab</span>
+          <span id="pcModeTabLabel">Âm thanh PC / Tab</span>
         </button>
-        <button type="button" data-mode="mic" class="mode-tab flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition sm:text-sm">
+        <button type="button" data-mode="mic" class="mode-tab flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 rounded-xl px-2 py-2.5 text-[11px] font-semibold transition sm:px-3.5 sm:text-sm text-center">
           <i data-lucide="mic" class="h-4 w-4 shrink-0"></i>
           <span>Micro / Lời hát</span>
         </button>
-        <button type="button" data-mode="hum" class="mode-tab flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition sm:text-sm">
+        <button type="button" data-mode="hum" class="mode-tab flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 rounded-xl px-2 py-2.5 text-[11px] font-semibold transition sm:px-3.5 sm:text-sm text-center">
           <i data-lucide="music" class="h-4 w-4 shrink-0"></i>
-          <span>Ngân nga giai điệu</span>
+          <span>Ngân nga</span>
         </button>
       </div>
 
@@ -175,13 +216,19 @@
             </button>
           </div>
 
-          <div class="mt-2 flex items-center gap-3 text-xs">
+          <div class="mt-2 flex flex-wrap items-center justify-center gap-2 text-xs">
             <span id="statusPill" class="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1 font-medium text-slate-300 border border-white/10">
               <span id="statusDot" class="h-2 w-2 rounded-full bg-slate-400"></span>
               <span id="statusText">Sẵn sàng lắng nghe</span>
             </span>
             <span id="timerText" class="font-mono text-sm font-semibold text-cyanGlow hidden">00:00</span>
           </div>
+
+          <label for="quickAudioFileInput" class="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-[11px] font-semibold text-slate-200 transition hover:border-cyanGlow/40 hover:bg-cyanGlow/10">
+            <i data-lucide="file-up" class="h-3.5 w-3.5 text-cyanGlow"></i>
+            <span>Nhận diện từ file nhạc / ghi âm điện thoại</span>
+            <input id="quickAudioFileInput" type="file" accept="audio/*,video/*,.mp3,.wav,.m4a,.aac,.ogg,.flac,.webm,.mp4,.mov" class="hidden" />
+          </label>
         </div>
 
         <!-- Right Live Waveform + Pitch / Spectrum Telemetry -->
@@ -320,6 +367,12 @@
       </div>
     </section>
 
+    <!-- AD SLOT: Mid-Page Banner #1 (728x90 Responsive) -->
+    <div data-ad-slot="mid_banner_1_728x90" class="ad-slot mx-auto flex min-h-[84px] w-full max-w-4xl flex-col items-center justify-center rounded-2xl px-4 py-3 text-center sm:min-h-[96px]">
+      <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Vị trí đặt quảng cáo giữa trang #1 (In-Content Banner)</span>
+      <span class="mt-0.5 font-mono text-[11px] text-slate-400">728 × 90 / 970 × 90 Responsive</span>
+    </div>
+
     <!-- Section: YouTube Search Results -->
     <section class="space-y-4">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -383,7 +436,216 @@
         <p class="mt-1 text-xs text-slate-400">Hãy thử chọn bộ lọc "Tất cả" hoặc mở trực tiếp kết quả trên YouTube.</p>
       </div>
     </section>
+
+    <!-- Section: Tự động tìm tất cả bài hát / phiên bản có cùng tên kết quả -->
+    <section id="allMatchesSection" class="hidden glass-card rounded-3xl p-5 sm:p-6 space-y-4">
+      <div class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violetGlow/20 text-violet-300">
+            <i data-lucide="list-music" class="h-5 w-5"></i>
+          </div>
+          <div class="min-w-0">
+            <h2 class="text-base font-extrabold text-white sm:text-lg flex flex-wrap items-center gap-2">
+              <span>Tất cả bài hát &amp; phiên bản có tên:</span>
+              <span id="allMatchesTitleBadge" class="rounded-lg bg-cyanGlow/15 px-2.5 py-0.5 text-sm font-bold text-cyanGlow border border-cyanGlow/30">...</span>
+            </h2>
+            <p id="allMatchesSubheading" class="text-xs text-slate-400 mt-0.5">Tự động quét tất cả MV, Remix, Cover, Karaoke, Live khớp tên bài hát vừa nhận diện.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <span id="allMatchesCountBadge" class="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white">0 bài</span>
+          <a id="allMatchesYtLink" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:bg-ytRed hover:border-ytRed hover:text-white">
+            <i data-lucide="external-link" class="h-3.5 w-3.5"></i>
+            <span>Xem tất cả trên YouTube</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Variant Filter Pills -->
+      <div id="allMatchesFilterBar" class="flex flex-wrap items-center gap-2">
+        <button type="button" data-vcat="all" class="vcat-pill rounded-full px-3 py-1 text-xs font-semibold transition">Tất cả phiên bản</button>
+        <button type="button" data-vcat="mv" class="vcat-pill rounded-full px-3 py-1 text-xs font-semibold transition">Official / MV</button>
+        <button type="button" data-vcat="remix" class="vcat-pill rounded-full px-3 py-1 text-xs font-semibold transition">Remix / Speed Up</button>
+        <button type="button" data-vcat="cover" class="vcat-pill rounded-full px-3 py-1 text-xs font-semibold transition">Cover / Acoustic</button>
+        <button type="button" data-vcat="karaoke" class="vcat-pill rounded-full px-3 py-1 text-xs font-semibold transition">Karaoke / Beat</button>
+        <button type="button" data-vcat="lofi" class="vcat-pill rounded-full px-3 py-1 text-xs font-semibold transition">Lofi / Lyrics / Live</button>
+      </div>
+
+      <!-- Loading bar -->
+      <div id="allMatchesLoading" class="hidden py-6 text-center text-xs text-cyan-200">
+        Đang tự động tìm kiếm tất cả các bài hát &amp; video mang tên này...
+      </div>
+
+      <!-- List of all matching songs/videos -->
+      <div id="allMatchesList" class="grid grid-cols-1 gap-3 md:grid-cols-2"></div>
+
+      <!-- Empty for variant filter -->
+      <div id="allMatchesEmpty" class="hidden rounded-2xl border border-white/10 bg-black/25 p-6 text-center text-xs text-slate-400">
+        Không có phiên bản nào thuộc nhóm lọc này. Hãy chọn "Tất cả phiên bản" để xem toàn bộ.
+      </div>
+
+      <!-- Load more button (YouTube API pagination) -->
+      <div id="allMatchesLoadMoreWrap" class="hidden pt-2 text-center">
+        <button id="btnLoadMoreMatches" type="button" class="inline-flex items-center gap-2 rounded-xl border border-cyanGlow/35 bg-cyanGlow/10 px-5 py-2.5 text-xs font-bold text-cyan-200 transition hover:bg-cyanGlow/25">
+          <i data-lucide="plus-circle" class="h-4 w-4"></i>
+          <span>Tải thêm video cùng tên trên YouTube</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- AD SLOT: Mid-Page Banner #2 (728x90 Responsive) -->
+    <div data-ad-slot="mid_banner_2_728x90" class="ad-slot mx-auto flex min-h-[84px] w-full max-w-4xl flex-col items-center justify-center rounded-2xl px-4 py-3 text-center sm:min-h-[96px]">
+      <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Vị trí đặt quảng cáo giữa trang #2 (Above Converter)</span>
+      <span class="mt-0.5 font-mono text-[11px] text-slate-400">728 × 90 / 970 × 90 Responsive</span>
+    </div>
+
+    <!-- Section: Chuyển Đổi Tất Cả Định Dạng Audio (Universal Audio Converter) -->
+    <section id="audioConverterSection" class="glass-card rounded-3xl p-5 sm:p-7 space-y-5">
+      <div class="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyanGlow/25 to-violetGlow/30 text-cyanGlow border border-cyanGlow/30">
+            <i data-lucide="arrow-left-right" class="h-5 w-5"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-extrabold text-white sm:text-lg">Chuyển đổi tất cả định dạng Audio</h2>
+            <p class="text-xs text-slate-400">Hỗ trợ MP3, WAV, M4A, OGG, FLAC, WEBM, AAC, MP4 — cắt đoạn, chỉnh tần số &amp; tìm nhạc trực tiếp từ file.</p>
+          </div>
+        </div>
+        <button id="btnLoadRecordedToConv" type="button" class="glass-pill inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold text-cyan-200 transition hover:bg-cyanGlow/15 shrink-0">
+          <i data-lucide="mic" class="h-3.5 w-3.5"></i>
+          <span>Lấy đoạn vừa thu âm</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-12">
+        <!-- Dropzone & Input Info -->
+        <div class="lg:col-span-6 space-y-3">
+          <label id="convDropzone" for="convFileInput" class="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-black/35 p-6 text-center transition hover:border-cyanGlow/50 hover:bg-cyanGlow/5">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-cyanGlow">
+              <i data-lucide="upload-cloud" class="h-6 w-6"></i>
+            </div>
+            <p class="mt-3 text-sm font-bold text-white">Kéo thả file âm thanh / video vào đây</p>
+            <p class="mt-1 text-xs text-slate-400">hoặc bấm để chọn file (MP3, WAV, M4A, FLAC, OGG, WEBM, MP4...)</p>
+            <input id="convFileInput" type="file" accept="audio/*,video/*,.mp3,.wav,.m4a,.aac,.ogg,.flac,.webm,.mp4,.mov" class="hidden" />
+          </label>
+
+          <div id="convFileInfo" class="hidden rounded-2xl border border-white/10 bg-black/40 p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <p id="convFileName" class="truncate text-xs font-bold text-white">audio.mp3</p>
+                <p id="convFileMeta" class="text-[11px] text-slate-400">0 MB • 00:00</p>
+              </div>
+              <button id="btnConvRecognize" type="button" class="shrink-0 rounded-xl bg-ytRed/20 border border-ytRed/40 px-3 py-1.5 text-[11px] font-bold text-rose-200 transition hover:bg-ytRed hover:text-white flex items-center gap-1">
+                <i data-lucide="search" class="h-3 w-3"></i>
+                <span>Tìm bài hát từ file này</span>
+              </button>
+            </div>
+            <audio id="convSourcePlayer" controls class="h-9 w-full"></audio>
+          </div>
+        </div>
+
+        <!-- Conversion Settings & Output -->
+        <div class="lg:col-span-6 space-y-3.5">
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label for="convFormatSelect" class="block text-xs font-semibold text-slate-300 mb-1">Định dạng đầu ra</label>
+              <select id="convFormatSelect" class="w-full rounded-xl border border-white/15 bg-panelLight px-3 py-2 text-xs font-medium text-white outline-none focus:border-cyanGlow">
+                <option value="wav">WAV (16-bit PCM — Trình duyệt &amp; Server)</option>
+                <option value="webm">WebM / Opus (Trình duyệt &amp; Server)</option>
+                <option value="mp3">MP3 (320 kbps — Qua Backend FFmpeg)</option>
+                <option value="m4a">M4A / AAC (Qua Backend FFmpeg)</option>
+                <option value="flac">FLAC Lossless (Qua Backend FFmpeg)</option>
+                <option value="ogg">OGG Vorbis (Qua Backend FFmpeg)</option>
+              </select>
+            </div>
+            <div>
+              <label for="convSampleRate" class="block text-xs font-semibold text-slate-300 mb-1">Tần số mẫu (Sample Rate)</label>
+              <select id="convSampleRate" class="w-full rounded-xl border border-white/15 bg-panelLight px-3 py-2 text-xs font-medium text-white outline-none focus:border-cyanGlow">
+                <option value="44100" selected>44,100 Hz (Chuẩn CD)</option>
+                <option value="48000">48,000 Hz (Studio / Video)</option>
+                <option value="22050">22,050 Hz (Nhẹ)</option>
+                <option value="16000">16,000 Hz (Giọng nói / Nhận diện)</option>
+              </select>
+            </div>
+            <div>
+              <label for="convChannels" class="block text-xs font-semibold text-slate-300 mb-1">Kênh âm thanh</label>
+              <select id="convChannels" class="w-full rounded-xl border border-white/15 bg-panelLight px-3 py-2 text-xs font-medium text-white outline-none focus:border-cyanGlow">
+                <option value="2" selected>Stereo (2 kênh)</option>
+                <option value="1">Mono (1 kênh — giảm 50% dung lượng)</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label for="convTrimStart" class="block text-xs font-semibold text-slate-300 mb-1">Cắt từ (giây)</label>
+                <input id="convTrimStart" type="number" min="0" step="0.5" value="0" class="w-full rounded-xl border border-white/15 bg-black/50 px-2.5 py-2 text-xs text-white outline-none focus:border-cyanGlow" />
+              </div>
+              <div>
+                <label for="convTrimEnd" class="block text-xs font-semibold text-slate-300 mb-1">Đến (giây)</label>
+                <input id="convTrimEnd" type="number" min="0" step="0.5" placeholder="Hết bài" class="w-full rounded-xl border border-white/15 bg-black/50 px-2.5 py-2 text-xs text-white placeholder-slate-500 outline-none focus:border-cyanGlow" />
+              </div>
+            </div>
+          </div>
+
+          <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer select-none">
+            <input id="convNormalize" type="checkbox" class="rounded border-white/20 bg-black/50 text-cyanGlow focus:ring-cyanGlow" />
+            <span>Tự động chuẩn hóa âm lượng (Normalize Audio)</span>
+          </label>
+
+          <button id="btnConvertAudio" type="button" class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyanGlow to-violetGlow px-5 py-3 text-xs font-extrabold text-obsidian shadow-lg shadow-cyanGlow/20 transition hover:brightness-110 sm:text-sm">
+            <i data-lucide="wand-2" class="h-4 w-4"></i>
+            <span>Chuyển đổi Audio ngay</span>
+          </button>
+
+          <div id="convStatusBox" class="hidden rounded-xl border border-white/10 bg-black/40 p-3 text-xs text-slate-200 space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <span id="convStatusText" class="font-semibold text-emerald-300">Chuyển đổi thành công!</span>
+              <span id="convOutSize" class="font-mono text-[11px] text-slate-400"></span>
+            </div>
+            <audio id="convOutputPlayer" controls class="h-9 w-full hidden"></audio>
+            <a id="convDownloadLink" href="#" download="converted.wav" class="hidden w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-obsidian transition hover:bg-emerald-400">
+              <i data-lucide="download" class="h-4 w-4"></i>
+              <span>Tải file đã chuyển đổi</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AD SLOT: Footer Large Rectangle / Multiplex Grid (2x 336x280) -->
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div data-ad-slot="footer_rect_left_336x280" class="ad-slot flex min-h-[140px] flex-col items-center justify-center rounded-2xl p-4 text-center">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Vị trí đặt quảng cáo chân trang #1</span>
+        <span class="mt-1 font-mono text-[11px] text-slate-400">336 × 280 Large Rectangle</span>
+      </div>
+      <div data-ad-slot="footer_rect_right_336x280" class="ad-slot flex min-h-[140px] flex-col items-center justify-center rounded-2xl p-4 text-center">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Vị trí đặt quảng cáo chân trang #2</span>
+        <span class="mt-1 font-mono text-[11px] text-slate-400">336 × 280 Large Rectangle</span>
+      </div>
+    </div>
+
+    <!-- Container for Admin-added custom ad slots -->
+    <div id="customAdsContainer" class="space-y-4"></div>
+
+    <footer class="flex items-center justify-between border-t border-white/5 pt-4 text-[11px] text-slate-500">
+      <span>© 2026 Tìm Nhạc</span>
+      <button id="btnAdminOpen" type="button" aria-label="Bảo trì hệ thống" title="" class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-slate-600 opacity-30 transition hover:bg-white/5 hover:text-slate-300 hover:opacity-90">
+        <i data-lucide="wrench" class="h-3.5 w-3.5"></i>
+      </button>
+    </footer>
   </main>
+
+  <!-- AD SLOT: Sticky Bottom Anchor Banner (Dismissible) -->
+  <div id="bottomStickyAd" data-ad-slot="bottom_anchor_728x90" class="safe-bottom fixed bottom-0 left-0 right-0 z-30 border-t border-white/10 bg-obsidian/95 px-3 py-1.5 backdrop-blur-xl sm:px-4 sm:py-2">
+    <div class="mx-auto flex max-w-4xl items-center justify-between gap-3">
+      <div class="ad-slot flex flex-1 min-h-[54px] flex-col items-center justify-center rounded-xl px-3 py-1.5 text-center">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Quảng cáo cố định cuối màn hình (Sticky Anchor)</span>
+        <span class="font-mono text-[10px] text-slate-400">728 × 90 Desktop • 320 × 50 Mobile</span>
+      </div>
+      <button id="btnCloseBottomAd" type="button" class="shrink-0 rounded-lg bg-white/10 p-1.5 text-slate-400 transition hover:bg-white/20 hover:text-white" aria-label="Ẩn thanh quảng cáo">
+        <i data-lucide="x" class="h-4 w-4"></i>
+      </button>
+    </div>
+  </div>
 
   <!-- Video Player Modal -->
   <div id="playerModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-4 backdrop-blur-md">
@@ -407,21 +669,66 @@
     </div>
   </div>
 
-  <!-- Settings Modal (API Keys) -->
+  <!-- Admin Login Modal -->
+  <div id="adminLoginModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+    <div class="glass-card w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-white/15">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3.5">
+        <div class="flex items-center gap-2">
+          <i data-lucide="shield-check" class="h-5 w-5 text-amber-400"></i>
+          <h3 class="text-base font-bold text-white">Đăng nhập Quản trị viên</h3>
+        </div>
+        <button id="btnAdminClose" type="button" class="rounded-lg bg-white/10 p-1.5 text-slate-300 hover:bg-white/20 hover:text-white">
+          <i data-lucide="x" class="h-4 w-4"></i>
+        </button>
+      </div>
+
+      <p class="mt-3 text-xs leading-relaxed text-slate-300">
+        Khu vực dành cho QTV Cấu Hình.
+      </p>
+
+      <form id="adminLoginForm" class="mt-4 space-y-3.5">
+        <div>
+          <label for="inputAdminUser" class="block text-xs font-semibold text-slate-200 mb-1">Tên đăng nhập</label>
+          <input id="inputAdminUser" type="text" autocomplete="username" placeholder="Nhập tên đăng nhập..." required class="w-full rounded-xl border border-white/15 bg-black/50 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 outline-none focus:border-amber-400" />
+        </div>
+        <div>
+          <label for="inputAdminPass" class="block text-xs font-semibold text-slate-200 mb-1">Mật khẩu</label>
+          <input id="inputAdminPass" type="password" autocomplete="current-password" placeholder="Nhập mật khẩu quản trị..." required class="w-full rounded-xl border border-white/15 bg-black/50 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 outline-none focus:border-amber-400" />
+        </div>
+        <p id="adminLoginError" class="hidden rounded-lg bg-ytRed/15 border border-ytRed/40 px-3 py-2 text-xs text-rose-200"></p>
+        <button type="submit" class="w-full rounded-xl bg-amber-400 px-4 py-2.5 text-xs font-extrabold text-obsidian transition hover:bg-amber-300">
+          Đăng nhập Quản trị
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Settings Modal (API Keys & Ads Manager — Admin Only) -->
   <div id="settingsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-4 backdrop-blur-md">
-    <div class="glass-card w-full max-w-lg rounded-3xl p-6 shadow-2xl border border-white/15">
+    <div class="glass-card custom-scroll max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-3xl p-6 shadow-2xl border border-white/15">
       <div class="flex items-center justify-between border-b border-white/10 pb-3.5">
         <div class="flex items-center gap-2">
           <i data-lucide="sliders-horizontal" class="h-5 w-5 text-ytRed"></i>
-          <h3 class="text-base font-bold text-white">Cài đặt API mở rộng (Tùy chọn)</h3>
+          <h3 class="text-base font-bold text-white">Cài đặt Quản trị (API &amp; Quảng cáo)</h3>
         </div>
         <button id="btnSettingsClose" type="button" class="rounded-lg bg-white/10 p-1.5 text-slate-300 hover:bg-white/20 hover:text-white">
           <i data-lucide="x" class="h-4 w-4"></i>
         </button>
       </div>
 
+      <!-- Admin Settings Tabs -->
+      <div class="mt-4 grid grid-cols-2 gap-1.5 rounded-xl bg-black/40 p-1 border border-white/10">
+        <button id="btnTabApi" type="button" class="rounded-lg bg-ytRed px-3 py-2 text-xs font-bold text-white transition">
+          Kết nối API &amp; Mật khẩu
+        </button>
+        <button id="btnTabAds" type="button" class="rounded-lg px-3 py-2 text-xs font-bold text-slate-300 transition hover:bg-white/10 hover:text-white">
+          Monetag &amp; Quảng cáo
+        </button>
+      </div>
+
+      <div id="tabApiPanel">
       <p class="mt-3 text-xs leading-relaxed text-slate-300">
-        Ứng dụng hoạt động ngay không cần khóa API (dùng Web Speech API, nhận diện cao độ ngân nga, iTunes API và danh mục YouTube tích hợp). Bạn có thể nhập thêm khóa dưới đây để tìm kiếm trực tiếp toàn bộ YouTube và nhận diện nhạc nền PC như Shazam:
+        Cấu hình Backend ShazamIO (miễn phí), YouTube Data API v3, AudD.io hoặc đổi mật khẩu Quản trị viên:
       </p>
 
       <form id="settingsForm" class="mt-4 space-y-4">
@@ -455,6 +762,13 @@
           <p class="mt-1 text-[11px] text-slate-400">Khi ghi âm nhạc đang phát trên PC, âm thanh sẽ gửi tới AudD để nhận diện tên bài hát &amp; ca sĩ chính xác.</p>
         </div>
 
+        <div class="border-t border-white/10 pt-3">
+          <label for="inputNewAdminPass" class="block text-xs font-semibold text-amber-200 mb-1">
+            Đổi mật khẩu Quản trị viên (Để trống nếu giữ nguyên)
+          </label>
+          <input id="inputNewAdminPass" type="password" placeholder="Nhập mật khẩu mới..." class="w-full rounded-xl border border-white/15 bg-black/50 px-3.5 py-2 text-xs text-white placeholder-slate-500 outline-none focus:border-amber-400" />
+        </div>
+
         <div id="apiTestResult" class="hidden rounded-xl border border-white/10 bg-black/40 p-3 text-xs leading-relaxed"></div>
 
         <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
@@ -471,6 +785,131 @@
           </div>
         </div>
       </form>
+      </div>
+
+      <!-- Tab 2: Monetag & Auto-Ads Manager Panel -->
+      <div id="tabAdsPanel" class="hidden mt-4 space-y-4">
+        <!-- Section A: Monetag Quick Connect & Auto-Placement -->
+        <div class="rounded-2xl border border-emerald-400/30 bg-emerald-500/5 p-4 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-400/20 text-xs font-extrabold text-emerald-300">M</span>
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-emerald-200">Liên kết Monetag &amp; Bố trí tự động</h4>
+            </div>
+            <label class="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-200 cursor-pointer select-none">
+              <input id="chkMonetagMaster" type="checkbox" checked class="rounded border-white/20 bg-black/50 text-emerald-400" />
+              <span>Bật Monetag</span>
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            <div>
+              <label for="monetagLayoutPreset" class="block text-[11px] font-semibold text-slate-200 mb-1">Chế độ bố trí tự động</label>
+              <select id="monetagLayoutPreset" class="w-full rounded-xl border border-white/15 bg-panelLight px-3 py-2 text-xs font-medium text-white outline-none focus:border-emerald-400">
+                <option value="max">Tối đa doanh thu (Toàn bộ 9 vị trí + Auto Tag)</option>
+                <option value="balanced" selected>Cân bằng UX (Đầu trang, Xen kẽ, Giữa, Chân trang)</option>
+                <option value="light">Nhẹ nhàng (Auto Tag + Đầu &amp; Chân trang)</option>
+                <option value="manual">Tùy chỉnh thủ công từng vị trí</option>
+              </select>
+            </div>
+            <div>
+              <label for="inputMonetagVerify" class="block text-[11px] font-semibold text-slate-200 mb-1">Mã xác minh Meta Monetag (content)</label>
+              <input id="inputMonetagVerify" type="text" placeholder="Ví dụ: 9a8b7c6d5e4f..." class="w-full rounded-xl border border-white/15 bg-black/50 px-3 py-2 font-mono text-xs text-white placeholder-slate-500 outline-none focus:border-emerald-400" />
+            </div>
+          </div>
+
+          <div>
+            <label for="inputMonetagSmartLink" class="block text-[11px] font-semibold text-slate-200 mb-1">Monetag Direct Link / SmartLink (Tự động gắn vào tất cả Banner)</label>
+            <input id="inputMonetagSmartLink" type="url" placeholder="https://..." class="w-full rounded-xl border border-white/15 bg-black/50 px-3 py-2 text-xs text-white placeholder-slate-500 outline-none focus:border-emerald-400" />
+          </div>
+
+          <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            <div>
+              <label for="inputMonetagMultiTag" class="block text-[11px] font-semibold text-slate-200 mb-1">Mã MultiTag (Tự xoay vòng tất cả định dạng)</label>
+              <textarea id="inputMonetagMultiTag" rows="2" placeholder="Dán thẻ <script> MultiTag của Monetag..." class="w-full rounded-xl border border-white/15 bg-black/50 px-3 py-1.5 font-mono text-[11px] text-white placeholder-slate-500 outline-none focus:border-emerald-400"></textarea>
+            </div>
+            <div>
+              <label for="inputMonetagVignette" class="block text-[11px] font-semibold text-slate-200 mb-1">Mã Vignette / In-Page Push / Popunder</label>
+              <textarea id="inputMonetagVignette" rows="2" placeholder="Dán thêm thẻ <script> Vignette / IPP / Popunder..." class="w-full rounded-xl border border-white/15 bg-black/50 px-3 py-1.5 font-mono text-[11px] text-white placeholder-slate-500 outline-none focus:border-emerald-400"></textarea>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+            <label class="flex items-center gap-2 text-[11px] text-slate-300 cursor-pointer select-none">
+              <input id="chkShowEmptySlots" type="checkbox" class="rounded border-white/20 bg-black/50 text-cyanGlow" />
+              <span>Hiện khung trống QC cho khách khi chưa dán mã</span>
+            </label>
+            <div class="flex flex-wrap items-center gap-2">
+              <button id="btnTestMonetag" type="button" class="rounded-xl border border-amber-400/40 bg-amber-400/15 px-3 py-1.5 text-[11px] font-bold text-amber-200 transition hover:bg-amber-400/25">
+                Kiểm tra kết nối
+              </button>
+              <button id="btnCopyMonetagHead" type="button" class="rounded-xl border border-cyanGlow/35 bg-cyanGlow/15 px-3 py-1.5 text-[11px] font-bold text-cyan-200 transition hover:bg-cyanGlow/25">
+                Copy mã &lt;head&gt;
+              </button>
+              <button id="btnSaveMonetag" type="button" class="rounded-xl bg-emerald-400 px-4 py-1.5 text-xs font-extrabold text-obsidian transition hover:bg-emerald-300">
+                Lưu &amp; Bố trí tự động
+              </button>
+            </div>
+          </div>
+          <div id="monetagSyncStatus" class="hidden rounded-xl border border-white/10 bg-black/45 p-2.5 text-[11px] leading-relaxed whitespace-pre-line"></div>
+        </div>
+
+        <!-- Section B: Fine-grained Per-Slot Override & Copy Position -->
+        <div class="rounded-2xl border border-amber-400/25 bg-amber-500/5 p-3.5 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <label for="adSlotSelect" class="text-xs font-bold text-amber-200">Tùy chỉnh riêng từng vị trí (Ghi đè tự động)</label>
+            <button id="btnCopySlotId" type="button" class="inline-flex items-center gap-1 rounded-lg border border-cyanGlow/35 bg-cyanGlow/15 px-2.5 py-1 text-[11px] font-bold text-cyan-200 transition hover:bg-cyanGlow/25">
+              <i data-lucide="copy" class="h-3 w-3"></i>
+              <span>Copy mã vị trí</span>
+            </button>
+          </div>
+          <select id="adSlotSelect" class="w-full rounded-xl border border-white/15 bg-panelLight px-3 py-2 text-xs font-medium text-white outline-none focus:border-amber-400"></select>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-300">
+            <label class="flex items-center gap-2 cursor-pointer select-none">
+              <input id="chkAdEnabled" type="checkbox" checked class="rounded border-white/20 bg-black/50 text-amber-400" />
+              <span>Bật vị trí này</span>
+            </label>
+            <select id="adTypeSelect" class="rounded-lg border border-white/15 bg-panelLight px-2.5 py-1 text-[11px] font-medium text-white outline-none focus:border-cyanGlow">
+              <option value="auto">Tự động theo Monetag SmartLink</option>
+              <option value="banner">Ảnh Banner riêng + Link đích</option>
+              <option value="html">Mã HTML / Zone Monetag riêng</option>
+            </select>
+          </div>
+
+          <div id="adBannerFields" class="hidden space-y-2">
+            <input id="inputAdImgUrl" type="url" placeholder="Link ảnh Banner (HTTPS)..." class="w-full rounded-xl border border-white/15 bg-black/50 px-3 py-2 text-xs text-white placeholder-slate-500 outline-none focus:border-cyanGlow" />
+            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <input id="inputAdLinkUrl" type="url" placeholder="Link đích (để trống = dùng SmartLink)..." class="w-full rounded-xl border border-white/15 bg-black/50 px-3 py-2 text-xs text-white placeholder-slate-500 outline-none focus:border-cyanGlow" />
+              <input id="inputAdLabel" type="text" placeholder="Tiêu đề / Chữ CTA..." class="w-full rounded-xl border border-white/15 bg-black/50 px-3 py-2 text-xs text-white placeholder-slate-500 outline-none focus:border-cyanGlow" />
+            </div>
+          </div>
+
+          <div id="adHtmlFields" class="hidden space-y-1.5">
+            <textarea id="inputAdHtmlCode" rows="3" placeholder="Dán mã Zone Monetag / HTML / Banner riêng cho vị trí này..." class="w-full rounded-xl border border-white/15 bg-black/50 px-3 py-2 font-mono text-xs text-white placeholder-slate-500 outline-none focus:border-cyanGlow"></textarea>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+            <button id="btnClearSlotAd" type="button" class="rounded-xl border border-white/10 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:bg-white/10">
+              Về mặc định tự động
+            </button>
+            <button id="btnSaveSlotAd" type="button" class="rounded-xl bg-amber-400 px-4 py-1.5 text-xs font-extrabold text-obsidian transition hover:bg-amber-300">
+              Lưu vị trí này
+            </button>
+          </div>
+        </div>
+
+        <!-- Section C: Add extra custom ad slot -->
+        <div class="border-t border-white/10 pt-3 space-y-2">
+          <p class="text-xs font-bold text-white">Thêm vị trí quảng cáo tùy chỉnh</p>
+          <div class="flex gap-2">
+            <input id="inputNewSlotName" type="text" placeholder="Tên vị trí mới (VD: Banner Monetag dưới bài hát)..." class="flex-1 rounded-xl border border-white/15 bg-black/50 px-3 py-2 text-xs text-white placeholder-slate-500 outline-none focus:border-cyanGlow" />
+            <button id="btnAddCustomSlot" type="button" class="shrink-0 rounded-xl border border-cyanGlow/40 bg-cyanGlow/15 px-3.5 py-2 text-xs font-bold text-cyan-200 transition hover:bg-cyanGlow/25">
+              + Thêm vị trí
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -826,7 +1265,28 @@
         currentQuery: '',
         currentHeard: null,
         results: [],
+        allMatchesTitle: '',
+        allMatches: [],
+        allMatchesFilter: 'all',
+        allMatchesNextPageToken: null,
         history: [],
+        isAdmin: false,
+        adminCreds: { user: 'Admin', pass: '824036' },
+        convFile: null,
+        convOutputUrl: null,
+        adsConfig: {
+          showEmptyForGuests: false,
+          monetag: {
+            enabled: true,
+            preset: 'balanced',
+            verifyMeta: '',
+            smartLink: '',
+            multiTag: '',
+            extraTags: ''
+          },
+          slots: {},
+          customSlots: []
+        },
         apiKeys: {
           ytApiKey: '',
           auddToken: '',
@@ -861,6 +1321,8 @@
         langWrap: document.getElementById('langWrap'),
         speechLangSelect: document.getElementById('speechLangSelect'),
         btnListenMain: document.getElementById('btnListenMain'),
+        pcModeTabLabel: document.getElementById('pcModeTabLabel'),
+        quickAudioFileInput: document.getElementById('quickAudioFileInput'),
         listenIcon: document.getElementById('listenIcon'),
         listenLabel: document.getElementById('listenLabel'),
         ring1: document.getElementById('ring1'),
@@ -901,6 +1363,17 @@
         resultsLoading: document.getElementById('resultsLoading'),
         resultsGrid: document.getElementById('resultsGrid'),
         resultsEmpty: document.getElementById('resultsEmpty'),
+        allMatchesSection: document.getElementById('allMatchesSection'),
+        allMatchesTitleBadge: document.getElementById('allMatchesTitleBadge'),
+        allMatchesSubheading: document.getElementById('allMatchesSubheading'),
+        allMatchesCountBadge: document.getElementById('allMatchesCountBadge'),
+        allMatchesYtLink: document.getElementById('allMatchesYtLink'),
+        vcatPills: document.querySelectorAll('.vcat-pill'),
+        allMatchesLoading: document.getElementById('allMatchesLoading'),
+        allMatchesList: document.getElementById('allMatchesList'),
+        allMatchesEmpty: document.getElementById('allMatchesEmpty'),
+        allMatchesLoadMoreWrap: document.getElementById('allMatchesLoadMoreWrap'),
+        btnLoadMoreMatches: document.getElementById('btnLoadMoreMatches'),
 
         playerModal: document.getElementById('playerModal'),
         playerModalTitle: document.getElementById('playerModalTitle'),
@@ -928,6 +1401,67 @@
         btnHistoryClose: document.getElementById('btnHistoryClose'),
         btnClearHistory: document.getElementById('btnClearHistory'),
         historyList: document.getElementById('historyList'),
+        btnAdminOpen: document.getElementById('btnAdminOpen'),
+        btnAdminLogout: document.getElementById('btnAdminLogout'),
+        adminLoginModal: document.getElementById('adminLoginModal'),
+        btnAdminClose: document.getElementById('btnAdminClose'),
+        adminLoginForm: document.getElementById('adminLoginForm'),
+        inputAdminUser: document.getElementById('inputAdminUser'),
+        inputAdminPass: document.getElementById('inputAdminPass'),
+        adminLoginError: document.getElementById('adminLoginError'),
+        inputNewAdminPass: document.getElementById('inputNewAdminPass'),
+        btnCloseBottomAd: document.getElementById('btnCloseBottomAd'),
+        bottomStickyAd: document.getElementById('bottomStickyAd'),
+        customAdsContainer: document.getElementById('customAdsContainer'),
+        btnTabApi: document.getElementById('btnTabApi'),
+        btnTabAds: document.getElementById('btnTabAds'),
+        tabApiPanel: document.getElementById('tabApiPanel'),
+        tabAdsPanel: document.getElementById('tabAdsPanel'),
+        adSlotSelect: document.getElementById('adSlotSelect'),
+        btnCopySlotId: document.getElementById('btnCopySlotId'),
+        chkAdEnabled: document.getElementById('chkAdEnabled'),
+        chkShowEmptySlots: document.getElementById('chkShowEmptySlots'),
+        adTypeSelect: document.getElementById('adTypeSelect'),
+        adBannerFields: document.getElementById('adBannerFields'),
+        adHtmlFields: document.getElementById('adHtmlFields'),
+        inputAdImgUrl: document.getElementById('inputAdImgUrl'),
+        inputAdLinkUrl: document.getElementById('inputAdLinkUrl'),
+        inputAdLabel: document.getElementById('inputAdLabel'),
+        inputAdHtmlCode: document.getElementById('inputAdHtmlCode'),
+        btnClearSlotAd: document.getElementById('btnClearSlotAd'),
+        btnSaveSlotAd: document.getElementById('btnSaveSlotAd'),
+        inputNewSlotName: document.getElementById('inputNewSlotName'),
+        btnAddCustomSlot: document.getElementById('btnAddCustomSlot'),
+        chkMonetagMaster: document.getElementById('chkMonetagMaster'),
+        monetagLayoutPreset: document.getElementById('monetagLayoutPreset'),
+        inputMonetagVerify: document.getElementById('inputMonetagVerify'),
+        inputMonetagSmartLink: document.getElementById('inputMonetagSmartLink'),
+        inputMonetagMultiTag: document.getElementById('inputMonetagMultiTag'),
+        inputMonetagVignette: document.getElementById('inputMonetagVignette'),
+        btnCopyMonetagHead: document.getElementById('btnCopyMonetagHead'),
+        btnSaveMonetag: document.getElementById('btnSaveMonetag'),
+        btnTestMonetag: document.getElementById('btnTestMonetag'),
+        monetagSyncStatus: document.getElementById('monetagSyncStatus'),
+        convDropzone: document.getElementById('convDropzone'),
+        convFileInput: document.getElementById('convFileInput'),
+        btnLoadRecordedToConv: document.getElementById('btnLoadRecordedToConv'),
+        convFileInfo: document.getElementById('convFileInfo'),
+        convFileName: document.getElementById('convFileName'),
+        convFileMeta: document.getElementById('convFileMeta'),
+        btnConvRecognize: document.getElementById('btnConvRecognize'),
+        convSourcePlayer: document.getElementById('convSourcePlayer'),
+        convFormatSelect: document.getElementById('convFormatSelect'),
+        convSampleRate: document.getElementById('convSampleRate'),
+        convChannels: document.getElementById('convChannels'),
+        convTrimStart: document.getElementById('convTrimStart'),
+        convTrimEnd: document.getElementById('convTrimEnd'),
+        convNormalize: document.getElementById('convNormalize'),
+        btnConvertAudio: document.getElementById('btnConvertAudio'),
+        convStatusBox: document.getElementById('convStatusBox'),
+        convStatusText: document.getElementById('convStatusText'),
+        convOutSize: document.getElementById('convOutSize'),
+        convOutputPlayer: document.getElementById('convOutputPlayer'),
+        convDownloadLink: document.getElementById('convDownloadLink'),
         toastContainer: document.getElementById('toastContainer')
       };
 
@@ -1396,30 +1930,40 @@
 
         try {
           let stream = null;
+          const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
           if (state.mode === 'pc') {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
-              throw new Error('Trình duyệt không hỗ trợ thu âm thanh màn hình/tab (getDisplayMedia).');
-            }
-            dom.statusText.textContent = 'Chọn thẻ/màn hình đang phát nhạc...';
-            stream = await navigator.mediaDevices.getDisplayMedia({
-              video: true,
-              audio: {
-                echoCancellation: false,
-                noiseSuppression: false,
-                autoGainControl: false
+            const canDisplay = Boolean(!isMobile && navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
+            if (canDisplay) {
+              dom.statusText.textContent = 'Chọn thẻ/màn hình đang phát nhạc...';
+              stream = await navigator.mediaDevices.getDisplayMedia({
+                video: true,
+                audio: {
+                  echoCancellation: false,
+                  noiseSuppression: false,
+                  autoGainControl: false
+                }
+              });
+              const audioTracks = stream.getAudioTracks();
+              if (!audioTracks || audioTracks.length === 0) {
+                stream.getTracks().forEach(function (t) { t.stop(); });
+                showToast('Bạn chưa tích chọn "Chia sẻ âm thanh" khi chia sẻ thẻ/màn hình. Hãy thử lại nhé!', 'warn');
+                dom.statusText.textContent = 'Chưa có tín hiệu âm thanh PC';
+                return;
               }
-            });
-            const audioTracks = stream.getAudioTracks();
-            if (!audioTracks || audioTracks.length === 0) {
-              stream.getTracks().forEach(function (t) { t.stop(); });
-              showToast('Bạn chưa tích chọn "Chia sẻ âm thanh" khi chia sẻ thẻ/màn hình. Hãy thử lại nhé!', 'warn');
-              dom.statusText.textContent = 'Chưa có tín hiệu âm thanh PC';
-              return;
+              audioTracks[0].addEventListener('ended', function () {
+                if (state.isListening) stopListeningAndSearch();
+              });
+            } else {
+              // Mobile fallback: capture ambient speaker music cleanly via mic without echo cancellation
+              if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error('Trình duyệt không hỗ trợ truy cập Micro.');
+              }
+              showToast('Trên điện thoại, chế độ này tự dùng Micro để nghe nhạc phát từ loa ngoài xung quanh.', 'info');
+              dom.statusText.textContent = 'Đang nghe nhạc loa ngoài qua Micro...';
+              stream = await navigator.mediaDevices.getUserMedia({
+                audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+              });
             }
-            // Stop video track if user stops sharing externally
-            audioTracks[0].addEventListener('ended', function () {
-              if (state.isListening) stopListeningAndSearch();
-            });
           } else {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
               throw new Error('Trình duyệt không hỗ trợ truy cập Micro.');
@@ -1431,20 +1975,36 @@
           state.mediaStream = stream;
           const AudioContextClass = window.AudioContext || window.webkitAudioContext;
           state.audioCtx = new AudioContextClass();
+          if (state.audioCtx.state === 'suspended') {
+            try { await state.audioCtx.resume(); } catch (e) {}
+          }
           const source = state.audioCtx.createMediaStreamSource(stream);
           state.analyser = state.audioCtx.createAnalyser();
           state.analyser.fftSize = 2048;
           state.analyser.smoothingTimeConstant = 0.82;
           source.connect(state.analyser);
 
-          // Setup MediaRecorder for playback & AudD upload
+          // Setup MediaRecorder with iOS Safari (audio/mp4) & Android/Desktop (audio/webm) compatibility
           try {
             const audioOnlyStream = new MediaStream(stream.getAudioTracks());
-            state.mediaRecorder = new MediaRecorder(audioOnlyStream);
+            let chosenMime = '';
+            if (typeof MediaRecorder !== 'undefined' && typeof MediaRecorder.isTypeSupported === 'function') {
+              const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/aac'];
+              for (let c = 0; c < candidates.length; c++) {
+                if (MediaRecorder.isTypeSupported(candidates[c])) {
+                  chosenMime = candidates[c];
+                  break;
+                }
+              }
+            }
+            state.recordedMimeType = chosenMime || 'audio/webm';
+            state.mediaRecorder = chosenMime
+              ? new MediaRecorder(audioOnlyStream, { mimeType: chosenMime })
+              : new MediaRecorder(audioOnlyStream);
             state.mediaRecorder.ondataavailable = function (ev) {
               if (ev.data && ev.data.size > 0) state.recordedChunks.push(ev.data);
             };
-            state.mediaRecorder.start();
+            state.mediaRecorder.start(250);
           } catch (recErr) {
             state.mediaRecorder = null;
           }
@@ -1535,7 +2095,7 @@
         if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
           audioBlob = await new Promise(function (resolve) {
             state.mediaRecorder.onstop = function () {
-              resolve(new Blob(state.recordedChunks, { type: 'audio/webm' }));
+              resolve(new Blob(state.recordedChunks, { type: (state.mediaRecorder && state.mediaRecorder.mimeType) || state.recordedMimeType || 'audio/webm' }));
             };
             try { state.mediaRecorder.stop(); } catch (e) { resolve(null); }
           });
@@ -1989,6 +2549,228 @@
 
         renderResults();
         lucide.createIcons();
+
+        if (cleanQuery) {
+          const coreName = extractCoreSongTitle(cleanQuery);
+          fetchAllSongsByTitle(coreName, false);
+        } else {
+          dom.allMatchesSection.classList.add('hidden');
+        }
+      }
+
+      function extractCoreSongTitle(rawQuery) {
+        let t = String(rawQuery || '').trim();
+        // If format is "Song Title - Artist" or "Song Title | Official MV", take the main song title part
+        if (t.indexOf(' - ') !== -1) {
+          const parts = t.split(' - ');
+          if (parts[0].trim().length >= 2) t = parts[0].trim();
+        } else if (t.indexOf(' — ') !== -1) {
+          const parts = t.split(' — ');
+          if (parts[0].trim().length >= 2) t = parts[0].trim();
+        }
+        t = t.replace(/\(.*?\)|\[.*?\]|「.*?」/g, '').trim();
+        return t || String(rawQuery || '').trim();
+      }
+
+      function classifyVariant(title) {
+        const low = normalizeVi(title);
+        if (low.includes('karaoke') || low.includes('beat') || low.includes('instrumental')) return 'karaoke';
+        if (low.includes('cover') || low.includes('acoustic') || low.includes('piano') || low.includes('guitar')) return 'cover';
+        if (low.includes('remix') || low.includes('speed up') || low.includes('sped up') || low.includes('edm') || low.includes('vina')) return 'remix';
+        if (low.includes('lofi') || low.includes('lyric') || low.includes('vietsub') || low.includes('live') || low.includes('chill')) return 'lofi';
+        return 'mv';
+      }
+
+      function updateVariantPills() {
+        dom.vcatPills.forEach(function (pill) {
+          const active = pill.getAttribute('data-vcat') === state.allMatchesFilter;
+          if (active) {
+            pill.className = 'vcat-pill rounded-full px-3 py-1 text-xs font-semibold transition bg-cyanGlow text-obsidian shadow';
+          } else {
+            pill.className = 'vcat-pill rounded-full px-3 py-1 text-xs font-semibold transition bg-white/5 text-slate-300 border border-white/10 hover:bg-white/15 hover:text-white';
+          }
+        });
+      }
+
+      async function fetchAllSongsByTitle(songTitle, append) {
+        const cleanTitle = (songTitle || '').trim();
+        if (!cleanTitle) return;
+
+        if (!append) {
+          state.allMatchesTitle = cleanTitle;
+          state.allMatches = [];
+          state.allMatchesFilter = 'all';
+          state.allMatchesNextPageToken = null;
+          updateVariantPills();
+          dom.allMatchesSection.classList.remove('hidden');
+          dom.allMatchesTitleBadge.textContent = cleanTitle;
+          dom.allMatchesYtLink.href = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(cleanTitle);
+          dom.allMatchesLoading.classList.remove('hidden');
+          dom.allMatchesList.innerHTML = '';
+          dom.allMatchesEmpty.classList.add('hidden');
+          dom.allMatchesLoadMoreWrap.classList.add('hidden');
+        } else {
+          dom.btnLoadMoreMatches.disabled = true;
+          dom.btnLoadMoreMatches.textContent = 'Đang tải thêm...';
+        }
+
+        const existingIds = new Set(state.allMatches.map(function (m) { return m.id; }));
+        const normTitle = normalizeVi(cleanTitle);
+        const titleWords = normTitle.split(' ').filter(function (w) { return w.length >= 2; });
+
+        function isNameMatch(text) {
+          const n = normalizeVi(text);
+          if (!n) return false;
+          if (n.includes(normTitle)) return true;
+          let hits = 0;
+          titleWords.forEach(function (w) { if (n.includes(w)) hits++; });
+          return titleWords.length > 0 && hits >= Math.ceil(titleWords.length * 0.6);
+        }
+
+        // 1) YouTube Data API v3 broad search for all videos with this name
+        if (state.apiKeys.ytApiKey) {
+          try {
+            let ytUrl = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=18&q=' +
+              encodeURIComponent(cleanTitle) + '&key=' + encodeURIComponent(state.apiKeys.ytApiKey);
+            if (append && state.allMatchesNextPageToken) {
+              ytUrl += '&pageToken=' + encodeURIComponent(state.allMatchesNextPageToken);
+            }
+            const r = await fetch(ytUrl);
+            const j = await r.json();
+            if (r.ok && j.items) {
+              state.allMatchesNextPageToken = j.nextPageToken || null;
+              j.items.forEach(function (item) {
+                const vid = item.id && item.id.videoId;
+                if (!vid || existingIds.has(vid)) return;
+                const title = decodeHtmlEntities(item.snippet.title || '');
+                if (!isNameMatch(title) && state.allMatches.length >= 6) return;
+                existingIds.add(vid);
+                state.allMatches.push({
+                  id: vid,
+                  title: title,
+                  channel: item.snippet.channelTitle || 'YouTube',
+                  vcat: classifyVariant(title),
+                  thumbnail: (item.snippet.thumbnails && item.snippet.thumbnails.medium && item.snippet.thumbnails.medium.url) || ('https://i.ytimg.com/vi/' + vid + '/mqdefault.jpg'),
+                  source: 'YouTube API',
+                  isEmbeddable: true,
+                  youtubeUrl: 'https://www.youtube.com/watch?v=' + vid
+                });
+              });
+            }
+          } catch (e) {
+            // Silently fall back below
+          }
+        }
+
+        // 2) Supplement with Verified Local Catalog + Public iTunes Search API on initial load
+        if (!append) {
+          VERIFIED_CATALOG.forEach(function (item) {
+            if (existingIds.has(item.id)) return;
+            if (isNameMatch(item.title + ' ' + item.tags.join(' '))) {
+              existingIds.add(item.id);
+              state.allMatches.push({
+                id: item.id,
+                title: item.title,
+                channel: item.channel,
+                vcat: classifyVariant(item.title),
+                thumbnail: 'https://i.ytimg.com/vi/' + item.id + '/mqdefault.jpg',
+                source: 'YouTube',
+                isEmbeddable: true,
+                youtubeUrl: 'https://www.youtube.com/watch?v=' + item.id
+              });
+            }
+          });
+
+          if (!state.apiKeys.ytApiKey || state.allMatches.length < 8) {
+            try {
+              const iUrl = 'https://itunes.apple.com/search?term=' + encodeURIComponent(cleanTitle) + '&media=music&limit=20';
+              const ir = await fetch(iUrl);
+              if (ir.ok) {
+                const ij = await ir.json();
+                (ij.results || []).forEach(function (tr, idx) {
+                  const tid = 'all_it_' + (tr.trackId || idx);
+                  const fullName = (tr.trackName || '') + (tr.artistName ? ' — ' + tr.artistName : '');
+                  if (!fullName || existingIds.has(tid)) return;
+                  if (!isNameMatch(fullName)) return;
+                  existingIds.add(tid);
+                  state.allMatches.push({
+                    id: tid,
+                    title: fullName,
+                    channel: tr.artistName || 'Nghệ sĩ',
+                    vcat: classifyVariant(fullName),
+                    thumbnail: (tr.artworkUrl100 || '').replace('100x100bb', '300x300bb'),
+                    source: 'Bản phát hành',
+                    isEmbeddable: false,
+                    previewUrl: tr.previewUrl || null,
+                    youtubeUrl: 'https://www.youtube.com/results?search_query=' + encodeURIComponent(fullName)
+                  });
+                });
+              }
+            } catch (ie) {
+              // Ignore network error
+            }
+          }
+        }
+
+        dom.allMatchesLoading.classList.add('hidden');
+        dom.btnLoadMoreMatches.disabled = false;
+        dom.btnLoadMoreMatches.innerHTML = '<i data-lucide="plus-circle" class="h-4 w-4"></i><span>Tải thêm video cùng tên trên YouTube</span>';
+        dom.allMatchesLoadMoreWrap.classList.toggle('hidden', !state.allMatchesNextPageToken);
+
+        renderAllMatches();
+      }
+
+      function renderAllMatches() {
+        const list = state.allMatchesFilter === 'all'
+          ? state.allMatches
+          : state.allMatches.filter(function (m) { return m.vcat === state.allMatchesFilter; });
+
+        dom.allMatchesCountBadge.textContent = list.length + ' bài';
+        dom.allMatchesSubheading.textContent = 'Đã tự động tìm thấy ' + state.allMatches.length + ' video & bản nhạc có tên "' + state.allMatchesTitle + '" (MV, Remix, Cover, Karaoke, Live...).';
+        dom.allMatchesList.innerHTML = '';
+
+        if (list.length === 0) {
+          dom.allMatchesEmpty.classList.remove('hidden');
+          return;
+        }
+        dom.allMatchesEmpty.classList.add('hidden');
+
+        const vLabels = {
+          mv: 'Official / MV',
+          remix: 'Remix',
+          cover: 'Cover / Acoustic',
+          karaoke: 'Karaoke / Beat',
+          lofi: 'Lofi / Live'
+        };
+
+        list.forEach(function (item) {
+          const row = document.createElement('div');
+          row.className = 'flex items-center gap-3 rounded-2xl border border-white/10 bg-black/35 p-2.5 transition hover:border-cyanGlow/40 hover:bg-white/[0.06]';
+
+          const playBtn = item.isEmbeddable
+            ? '<button type="button" data-all-action="play" data-mid="' + escapeHtml(item.id) + '" class="rounded-lg bg-ytRed px-2.5 py-1.5 text-[11px] font-bold text-white transition hover:bg-rose-500 flex items-center gap-1 shrink-0"><i data-lucide="play" class="h-3 w-3 fill-current"></i>Xem</button>'
+            : (item.previewUrl
+              ? '<button type="button" data-all-action="preview" data-mid="' + escapeHtml(item.id) + '" class="rounded-lg bg-cyanGlow/20 border border-cyanGlow/35 px-2.5 py-1.5 text-[11px] font-bold text-cyan-100 transition hover:bg-cyanGlow/30 flex items-center gap-1 shrink-0"><i data-lucide="headphones" class="h-3 w-3"></i>Nghe</button>'
+              : '');
+
+          row.innerHTML =
+            '<div class="relative h-16 w-28 shrink-0 overflow-hidden rounded-xl bg-slate-900">' +
+              '<img src="' + escapeHtml(item.thumbnail) + '" alt="' + escapeHtml(item.title) + '" loading="lazy" class="h-full w-full object-cover" />' +
+              '<span class="absolute bottom-1 left-1 rounded bg-black/75 px-1.5 py-0.5 text-[9px] font-semibold text-cyan-200">' + escapeHtml(vLabels[item.vcat] || 'Video') + '</span>' +
+            '</div>' +
+            '<div class="min-w-0 flex-1">' +
+              '<h3 class="line-clamp-2 text-xs font-bold leading-snug text-white">' + escapeHtml(item.title) + '</h3>' +
+              '<p class="mt-1 truncate text-[11px] text-slate-400">' + escapeHtml(item.channel) + ' • ' + escapeHtml(item.source) + '</p>' +
+            '</div>' +
+            '<div class="flex flex-col gap-1.5 shrink-0">' +
+              playBtn +
+              '<a href="' + escapeHtml(item.youtubeUrl) + '" target="_blank" rel="noopener noreferrer" class="rounded-lg border border-white/15 bg-white/5 px-2.5 py-1 text-center text-[10px] font-semibold text-slate-200 transition hover:bg-white/15">YouTube</a>' +
+            '</div>';
+
+          dom.allMatchesList.appendChild(row);
+        });
+
+        lucide.createIcons();
       }
 
       // =========================================================================
@@ -2099,7 +2881,7 @@
           live: 'Live'
         };
 
-        list.forEach(function (video) {
+        list.forEach(function (video, idx) {
           const card = document.createElement('article');
           card.className = 'glass-card group flex flex-col overflow-hidden rounded-2xl transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-xl hover:shadow-black/40';
 
@@ -2141,9 +2923,23 @@
             '</div>';
 
           dom.resultsGrid.appendChild(card);
+
+          // Inject an In-Feed Native Ad slot after the 3rd video card
+          if (idx === 2) {
+            const adCard = document.createElement('div');
+            adCard.setAttribute('data-ad-slot', 'in_feed_native_card');
+            adCard.className = 'ad-slot flex flex-col items-center justify-center rounded-2xl p-6 text-center min-h-[240px]';
+            adCard.innerHTML =
+              '<span class="rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Tài trợ / Quảng cáo</span>' +
+              '<p class="mt-2.5 text-xs font-semibold text-slate-300">Vị trí đặt quảng cáo In-Feed Native</p>' +
+              '<p class="mt-1 font-mono text-[11px] text-slate-500">300 × 250 / Fluid Card</p>';
+            dom.resultsGrid.appendChild(adCard);
+          }
         });
 
         lucide.createIcons();
+        if (state._renderAds) state._renderAds();
+        if (state._initMonetag) state._initMonetag();
       }
 
       function openPlayerModal(video) {
@@ -2210,6 +3006,8 @@
             '<p class="mt-0.5 truncate text-[11px] text-slate-400">' + escapeHtml(item.heardText) + '</p>';
           btn.addEventListener('click', function () {
             dom.historyDrawerBackdrop.classList.add('hidden');
+            dom.adminLoginModal.classList.add('hidden');
+            dom.adminLoginModal.classList.remove('flex');
             finishRecognitionAndSearch(Object.assign({}, item, { audioUrl: null }));
           });
           dom.historyList.appendChild(btn);
@@ -2230,9 +3028,9 @@
         dom.modeTabs.forEach(function (tab) {
           const active = tab.getAttribute('data-mode') === mode;
           if (active) {
-            tab.className = 'mode-tab flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition sm:text-sm bg-gradient-to-r from-ytRed to-violetGlow text-white shadow-lg shadow-ytRed/25';
+            tab.className = 'mode-tab flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 rounded-xl px-2 py-2.5 text-[11px] font-semibold transition sm:px-3.5 sm:text-sm text-center bg-gradient-to-r from-ytRed to-violetGlow text-white shadow-lg shadow-ytRed/25';
           } else {
-            tab.className = 'mode-tab flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition sm:text-sm text-slate-300 hover:bg-white/10 hover:text-white';
+            tab.className = 'mode-tab flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 rounded-xl px-2 py-2.5 text-[11px] font-semibold transition sm:px-3.5 sm:text-sm text-center text-slate-300 hover:bg-white/10 hover:text-white';
           }
         });
         dom.modeHintText.innerHTML = MODE_INFO[mode].hint;
@@ -2266,6 +3064,15 @@
         });
 
         dom.btnListenMain.addEventListener('click', startListening);
+
+        dom.quickAudioFileInput.addEventListener('change', function () {
+          if (dom.quickAudioFileInput.files && dom.quickAudioFileInput.files[0]) {
+            const f = dom.quickAudioFileInput.files[0];
+            setConverterFile(f, f.name);
+            dom.btnConvRecognize.click();
+            dom.quickAudioFileInput.value = '';
+          }
+        });
 
         dom.demoBtns.forEach(function (btn) {
           btn.addEventListener('click', function () {
@@ -2361,6 +3168,29 @@
           if (video) openPlayerModal(video);
         });
 
+        // Variant filter pills & delegated click for "All songs matching result name"
+        dom.vcatPills.forEach(function (pill) {
+          pill.addEventListener('click', function () {
+            state.allMatchesFilter = pill.getAttribute('data-vcat');
+            updateVariantPills();
+            renderAllMatches();
+          });
+        });
+
+        dom.allMatchesList.addEventListener('click', function (e) {
+          const btn = e.target.closest('button[data-all-action]');
+          if (!btn) return;
+          const mid = btn.getAttribute('data-mid');
+          const item = state.allMatches.find(function (m) { return m.id === mid; });
+          if (item) openPlayerModal(item);
+        });
+
+        dom.btnLoadMoreMatches.addEventListener('click', function () {
+          if (state.allMatchesTitle && state.allMatchesNextPageToken) {
+            fetchAllSongsByTitle(state.allMatchesTitle, true);
+          }
+        });
+
         // Player Modal
         dom.btnPlayerClose.addEventListener('click', closePlayerModal);
         dom.playerModal.addEventListener('click', function (e) {
@@ -2368,7 +3198,819 @@
         });
 
         // Settings Modal
+        const DEFAULT_AD_SLOTS = [
+          { id: 'top_leaderboard_728x90', name: 'Đầu trang — Top Leaderboard (728×90)' },
+          { id: 'left_rail_160x600', name: 'Cột trái — Left Skyscraper (160×600)' },
+          { id: 'right_rail_160x600', name: 'Cột phải — Right Skyscraper (160×600)' },
+          { id: 'mid_banner_1_728x90', name: 'Giữa trang #1 — Trên kết quả video (728×90)' },
+          { id: 'in_feed_native_card', name: 'Xen kẽ danh sách video — In-Feed Card (300×250)' },
+          { id: 'mid_banner_2_728x90', name: 'Giữa trang #2 — Trên bộ chuyển đổi Audio (728×90)' },
+          { id: 'footer_rect_left_336x280', name: 'Chân trang trái — Large Rectangle (336×280)' },
+          { id: 'footer_rect_right_336x280', name: 'Chân trang phải — Large Rectangle (336×280)' },
+          { id: 'bottom_anchor_728x90', name: 'Thanh dính cuối màn hình — Sticky Anchor (728×90)' }
+        ];
+
+        function copyTextSafe(text, toastMsg) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function () {
+              showToast(toastMsg || 'Đã sao chép!', 'success');
+            }).catch(function () {
+              fallbackCopy(text);
+            });
+          } else {
+            fallbackCopy(text);
+          }
+        }
+
+        function getAllSlotDefs() {
+          return DEFAULT_AD_SLOTS.concat(state.adsConfig.customSlots || []);
+        }
+
+        function populateAdSlotSelect(selectedId) {
+          const defs = getAllSlotDefs();
+          dom.adSlotSelect.innerHTML = '';
+          defs.forEach(function (d) {
+            const opt = document.createElement('option');
+            opt.value = d.id;
+            const hasAd = Boolean(state.adsConfig.slots && state.adsConfig.slots[d.id] && (state.adsConfig.slots[d.id].imgUrl || state.adsConfig.slots[d.id].html));
+            opt.textContent = (hasAd ? '✓ ' : '') + d.name + ' [' + d.id + ']';
+            dom.adSlotSelect.appendChild(opt);
+          });
+          if (selectedId) dom.adSlotSelect.value = selectedId;
+          loadSelectedAdSlotForm();
+        }
+
+        const PRESET_ACTIVE_SLOTS = {
+          max: ['top_leaderboard_728x90', 'left_rail_160x600', 'right_rail_160x600', 'mid_banner_1_728x90', 'in_feed_native_card', 'mid_banner_2_728x90', 'footer_rect_left_336x280', 'footer_rect_right_336x280', 'bottom_anchor_728x90'],
+          balanced: ['top_leaderboard_728x90', 'in_feed_native_card', 'mid_banner_2_728x90', 'footer_rect_left_336x280', 'footer_rect_right_336x280'],
+          light: ['top_leaderboard_728x90', 'footer_rect_left_336x280']
+        };
+
+        const AUTO_SMARTLINK_CARDS = {
+          top_leaderboard_728x90: { badge: 'Tài trợ • Monetag', title: 'Khám phá ưu đãi & nội dung giải trí nổi bật hôm nay', cta: 'Xem ngay →' },
+          left_rail_160x600: { badge: 'Monetag', title: 'Ưu đãi đặc biệt dành cho bạn', cta: 'Mở ngay' },
+          right_rail_160x600: { badge: 'Monetag', title: 'Khám phá đề xuất mới nhất', cta: 'Khám phá' },
+          mid_banner_1_728x90: { badge: 'Quảng cáo tự động', title: 'Tăng tốc trải nghiệm âm nhạc & giải trí trực tuyến', cta: 'Tìm hiểu thêm →' },
+          in_feed_native_card: { badge: 'Đề xuất tài trợ', title: 'Nội dung giải trí & ứng dụng âm nhạc phổ biến', cta: 'Truy cập ngay' },
+          mid_banner_2_728x90: { badge: 'Quảng cáo tự động', title: 'Công cụ & tiện ích âm thanh nổi bật hôm nay', cta: 'Xem chi tiết →' },
+          footer_rect_left_336x280: { badge: 'Monetag SmartLink', title: 'Ưu đãi chọn lọc dành riêng cho khách truy cập', cta: 'Mở ưu đãi →' },
+          footer_rect_right_336x280: { badge: 'Monetag SmartLink', title: 'Khám phá nội dung hot đang thịnh hành', cta: 'Xem ngay →' },
+          bottom_anchor_728x90: { badge: 'Tài trợ', title: 'Khám phá ưu đãi mới nhất hôm nay', cta: 'Mở ngay →' }
+        };
+
+        function getMonetagCfg() {
+          if (!state.adsConfig.monetag) {
+            state.adsConfig.monetag = { enabled: true, preset: 'balanced', verifyMeta: '', smartLink: '', multiTag: '', extraTags: '' };
+          }
+          return state.adsConfig.monetag;
+        }
+
+        function loadMonetagForm() {
+          const m = getMonetagCfg();
+          dom.chkMonetagMaster.checked = m.enabled !== false;
+          dom.monetagLayoutPreset.value = m.preset || 'balanced';
+          dom.inputMonetagVerify.value = m.verifyMeta || '';
+          dom.inputMonetagSmartLink.value = m.smartLink || '';
+          dom.inputMonetagMultiTag.value = m.multiTag || '';
+          dom.inputMonetagVignette.value = m.extraTags || '';
+          dom.chkShowEmptySlots.checked = Boolean(state.adsConfig.showEmptyForGuests);
+        }
+
+        function loadSelectedAdSlotForm() {
+          const slotId = dom.adSlotSelect.value;
+          const cfg = (state.adsConfig.slots && state.adsConfig.slots[slotId]) || { enabled: true, type: 'auto', imgUrl: '', linkUrl: '', label: '', html: '' };
+          dom.chkAdEnabled.checked = cfg.enabled !== false;
+          dom.adTypeSelect.value = cfg.type || 'auto';
+          dom.inputAdImgUrl.value = cfg.imgUrl || '';
+          dom.inputAdLinkUrl.value = cfg.linkUrl || '';
+          dom.inputAdLabel.value = cfg.label || '';
+          dom.inputAdHtmlCode.value = cfg.html || '';
+          const t = dom.adTypeSelect.value;
+          dom.adBannerFields.classList.toggle('hidden', t !== 'banner');
+          dom.adHtmlFields.classList.toggle('hidden', t !== 'html');
+        }
+
+        function cleanMonetagVerifyValue(raw) {
+          const txt = String(raw || '').trim();
+          if (!txt) return '';
+          const m = /content\s*=\s*["']([^"']+)["']/i.exec(txt);
+          return m ? m[1].trim() : txt.replace(/[<>"']/g, '').trim();
+        }
+
+        function getEffectiveBackendBase() {
+          if (state.apiKeys.useSameOriginShazam) return '';
+          if (state.apiKeys.shazamUrl && state.apiKeys.shazamUrl.trim()) {
+            return state.apiKeys.shazamUrl.trim().replace(/\/+$/, '');
+          }
+          // Auto-detect when hosted directly on Railway/server over http/https (not preview/file/blob)
+          const proto = window.location.protocol;
+          const host = window.location.hostname || '';
+          if ((proto === 'https:' || proto === 'http:') && host && host !== 'null' && !host.includes('usercontent') && !host.includes('sandbox')) {
+            return '';
+          }
+          return null;
+        }
+
+        function injectMonetagGlobalTags() {
+          document.querySelectorAll('[data-monetag-injected="1"]').forEach(function (n) { n.remove(); });
+          const m = getMonetagCfg();
+          if (m.enabled === false) return;
+
+          const verifyVal = cleanMonetagVerifyValue(m.verifyMeta);
+          if (verifyVal) {
+            const meta = document.createElement('meta');
+            meta.name = 'monetag';
+            meta.content = verifyVal;
+            meta.setAttribute('data-monetag-injected', '1');
+            document.head.appendChild(meta);
+          }
+
+          const combinedSnippets = [m.multiTag || '', m.extraTags || ''].join('\n').trim();
+          if (combinedSnippets) {
+            const holder = document.createElement('div');
+            holder.innerHTML = combinedSnippets;
+            holder.querySelectorAll('script').forEach(function (origScript) {
+              const sc = document.createElement('script');
+              sc.setAttribute('data-monetag-injected', '1');
+              Array.from(origScript.attributes).forEach(function (attr) {
+                sc.setAttribute(attr.name, attr.value);
+              });
+              if (origScript.textContent) sc.textContent = origScript.textContent;
+              document.head.appendChild(sc);
+            });
+          }
+        }
+
+        async function syncAdsConfigToServer() {
+          const backendBase = getEffectiveBackendBase();
+          if (backendBase === null) {
+            return { synced: false, reason: 'Chưa kết nối máy chủ backend (chỉ lưu cục bộ trên trình duyệt này).' };
+          }
+          try {
+            const resp = await fetch(backendBase + '/api/ads-config', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                admin_user: state.adminCreds.user,
+                admin_pass: state.adminCreds.pass,
+                config: state.adsConfig
+              })
+            });
+            if (resp.ok) {
+              return { synced: true, reason: 'Đã đồng bộ cấu hình Monetag lên máy chủ thành công!' };
+            }
+            let detail = 'HTTP ' + resp.status;
+            try {
+              const j = await resp.json();
+              if (j && j.detail) detail = j.detail;
+            } catch (e) {}
+            return { synced: false, reason: 'Máy chủ từ chối lưu (' + detail + '). Hãy kiểm tra lại bản server.py mới nhất đã deploy lên Railway chưa.' };
+          } catch (e) {
+            return { synced: false, reason: 'Không kết nối được tới /api/ads-config (' + (e.message || 'Lỗi mạng') + ').' };
+          }
+        }
+
+        async function loadAdsConfigFromServer() {
+          const backendBase = getEffectiveBackendBase();
+          if (backendBase === null) return;
+          try {
+            const r = await fetch(backendBase + '/api/ads-config');
+            if (r.ok) {
+              const j = await r.json();
+              if (j && j.config) {
+                const defaultM = { enabled: true, preset: 'balanced', verifyMeta: '', smartLink: '', multiTag: '', extraTags: '' };
+                state.adsConfig = {
+                  showEmptyForGuests: Boolean(j.config.showEmptyForGuests),
+                  monetag: Object.assign(defaultM, j.config.monetag || {}),
+                  slots: j.config.slots || {},
+                  customSlots: j.config.customSlots || []
+                };
+                safeSetStorage('timnhac_ads_config', state.adsConfig);
+                injectMonetagGlobalTags();
+                renderAllAdSlots();
+              }
+            }
+          } catch (e) {
+            // Keep localStorage when offline
+          }
+        }
+
+        function switchSettingsTab(tab) {
+          const isAds = tab === 'ads';
+          dom.tabApiPanel.classList.toggle('hidden', isAds);
+          dom.tabAdsPanel.classList.toggle('hidden', !isAds);
+          dom.btnTabApi.className = isAds
+            ? 'rounded-lg px-3 py-2 text-xs font-bold text-slate-300 transition hover:bg-white/10 hover:text-white'
+            : 'rounded-lg bg-ytRed px-3 py-2 text-xs font-bold text-white transition';
+          dom.btnTabAds.className = isAds
+            ? 'rounded-lg bg-emerald-400 px-3 py-2 text-xs font-extrabold text-obsidian transition'
+            : 'rounded-lg px-3 py-2 text-xs font-bold text-slate-300 transition hover:bg-white/10 hover:text-white';
+          if (isAds) {
+            loadMonetagForm();
+            populateAdSlotSelect(dom.adSlotSelect.value);
+          }
+        }
+
+        function renderCustomAdSlotContainers() {
+          dom.customAdsContainer.innerHTML = '';
+          (state.adsConfig.customSlots || []).forEach(function (cs) {
+            const box = document.createElement('div');
+            box.setAttribute('data-ad-slot', cs.id);
+            box.className = 'ad-slot mx-auto flex min-h-[88px] w-full max-w-4xl flex-col items-center justify-center rounded-2xl px-4 py-3 text-center';
+            box.innerHTML =
+              '<span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">' + escapeHtml(cs.name) + '</span>' +
+              '<span class="mt-0.5 font-mono text-[11px] text-slate-400">' + escapeHtml(cs.id) + '</span>';
+            dom.customAdsContainer.appendChild(box);
+          });
+        }
+
+        function isSlotActiveByPreset(slotId) {
+          const m = getMonetagCfg();
+          if (m.enabled === false) return false;
+          const preset = m.preset || 'balanced';
+          if (preset === 'manual') return true;
+          const list = PRESET_ACTIVE_SLOTS[preset] || PRESET_ACTIVE_SLOTS.balanced;
+          if (slotId.startsWith('custom_')) return true;
+          return list.indexOf(slotId) !== -1;
+        }
+
+        function renderAllAdSlots() {
+          state._renderAds = renderAllAdSlots;
+        state._initMonetag = function () {
+          injectMonetagGlobalTags();
+          loadAdsConfigFromServer();
+        };
+          renderCustomAdSlotContainers();
+          const m = getMonetagCfg();
+          const allEls = document.querySelectorAll('[data-ad-slot]');
+
+          allEls.forEach(function (el) {
+            const slotId = el.getAttribute('data-ad-slot');
+            if (!el.getAttribute('data-default-html')) {
+              el.setAttribute('data-default-html', el.innerHTML);
+            }
+            const cfg = (state.adsConfig.slots && state.adsConfig.slots[slotId]) || null;
+            const slotEnabled = cfg ? (cfg.enabled !== false) : isSlotActiveByPreset(slotId);
+            const effectiveType = (cfg && cfg.type) ? cfg.type : 'auto';
+            const smartLink = (m.enabled !== false && m.smartLink) ? m.smartLink.trim() : '';
+
+            const hasCustomHtml = effectiveType === 'html' && cfg && cfg.html && cfg.html.trim();
+            const hasCustomBanner = effectiveType === 'banner' && cfg && (cfg.imgUrl || cfg.label);
+            const hasAutoSmartLink = effectiveType === 'auto' && Boolean(smartLink);
+            const hasContent = Boolean(hasCustomHtml || hasCustomBanner || hasAutoSmartLink);
+
+            // Visibility rules
+            if (!slotEnabled && !state.isAdmin) {
+              el.classList.add('hidden');
+              return;
+            }
+            if (!hasContent && !state.adsConfig.showEmptyForGuests && !state.isAdmin) {
+              el.classList.add('hidden');
+              return;
+            }
+            if (slotId !== 'left_rail_160x600' && slotId !== 'right_rail_160x600') {
+              el.classList.remove('hidden');
+            }
+
+            // Render content
+            if (slotEnabled && hasCustomHtml) {
+              el.innerHTML = '<div class="w-full overflow-hidden flex items-center justify-center">' + cfg.html + '</div>';
+            } else if (slotEnabled && hasCustomBanner) {
+              const href = cfg.linkUrl || smartLink || '#';
+              const inner = cfg.imgUrl
+                ? '<img src="' + escapeHtml(cfg.imgUrl) + '" alt="' + escapeHtml(cfg.label || 'Quảng cáo') + '" class="max-h-full max-w-full rounded-xl object-contain" />'
+                : '<span class="text-sm font-bold text-amber-200">' + escapeHtml(cfg.label) + '</span>';
+              el.innerHTML = '<a href="' + escapeHtml(href) + '" target="_blank" rel="noopener noreferrer sponsored" class="flex h-full w-full flex-col items-center justify-center gap-1">' +
+                inner +
+                (cfg.imgUrl && cfg.label ? '<span class="text-[11px] font-medium text-slate-300">' + escapeHtml(cfg.label) + '</span>' : '') +
+                '</a>';
+            } else if (slotEnabled && hasAutoSmartLink) {
+              const meta = AUTO_SMARTLINK_CARDS[slotId] || { badge: 'Monetag', title: 'Khám phá nội dung tài trợ nổi bật', cta: 'Xem ngay →' };
+              const isVertical = (slotId === 'left_rail_160x600' || slotId === 'right_rail_160x600' || slotId === 'in_feed_native_card');
+              el.innerHTML =
+                '<a href="' + escapeHtml(smartLink) + '" target="_blank" rel="noopener noreferrer sponsored" class="group flex h-full w-full ' + (isVertical ? 'flex-col justify-center gap-3 text-center' : 'flex-wrap items-center justify-between gap-3 text-left') + ' rounded-xl bg-gradient-to-r from-emerald-500/10 via-cyanGlow/10 to-violetGlow/10 px-4 py-2.5 transition hover:from-emerald-500/20 hover:to-violetGlow/20">' +
+                  '<div class="min-w-0">' +
+                    '<span class="inline-block rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">' + escapeHtml(meta.badge) + '</span>' +
+                    '<p class="mt-1 text-xs font-bold text-white group-hover:text-cyanGlow transition">' + escapeHtml(meta.title) + '</p>' +
+                  '</div>' +
+                  '<span class="shrink-0 rounded-xl bg-emerald-400 px-3.5 py-1.5 text-[11px] font-extrabold text-obsidian shadow transition group-hover:bg-emerald-300">' + escapeHtml(meta.cta) + '</span>' +
+                '</a>';
+            } else {
+              el.innerHTML = el.getAttribute('data-default-html');
+            }
+
+            // Admin-only Copy & Edit bar on every slot
+            el.classList.add('relative');
+            if (state.isAdmin) {
+              const bar = document.createElement('div');
+              bar.className = 'mt-2 flex flex-wrap items-center justify-center gap-1.5 z-10';
+              const statusTag = slotEnabled ? 'Bật' : 'Đang tắt';
+              bar.innerHTML =
+                '<span class="rounded bg-black/75 px-1.5 py-0.5 font-mono text-[10px] ' + (slotEnabled ? 'text-emerald-300 border-emerald-400/30' : 'text-slate-400 border-white/15') + ' border">' + escapeHtml(slotId) + ' (' + statusTag + ')</span>' +
+                '<button type="button" data-ad-copy="' + escapeHtml(slotId) + '" class="rounded bg-cyanGlow/20 border border-cyanGlow/40 px-2 py-0.5 text-[10px] font-bold text-cyan-200 hover:bg-cyanGlow/35">Copy vị trí</button>' +
+                '<button type="button" data-ad-edit="' + escapeHtml(slotId) + '" class="rounded bg-amber-400/20 border border-amber-400/40 px-2 py-0.5 text-[10px] font-bold text-amber-200 hover:bg-amber-400/35">Cài QC</button>';
+              el.appendChild(bar);
+            }
+          });
+          lucide.createIcons();
+        }
+
+        function updateAdminUI() {
+          if (state.isAdmin) {
+            dom.btnSettingsOpen.classList.remove('hidden');
+            dom.btnSettingsOpen.classList.add('flex');
+            dom.btnAdminLogout.classList.remove('hidden');
+            dom.btnAdminLogout.classList.add('flex');
+            dom.btnAdminOpen.classList.add('hidden');
+            dom.btnAdminOpen.classList.remove('inline-flex');
+          } else {
+            dom.btnSettingsOpen.classList.add('hidden');
+            dom.btnSettingsOpen.classList.remove('flex');
+            dom.btnAdminLogout.classList.add('hidden');
+            dom.btnAdminLogout.classList.remove('flex');
+            dom.btnAdminOpen.classList.remove('hidden');
+            dom.btnAdminOpen.classList.add('inline-flex');
+          }
+          renderAllAdSlots();
+        }
+
+        // Global delegated clicks for Admin Copy/Edit buttons on any Ad Slot
+        document.addEventListener('click', function (e) {
+          const copyBtn = e.target.closest('button[data-ad-copy]');
+          if (copyBtn && state.isAdmin) {
+            e.preventDefault();
+            e.stopPropagation();
+            const sid = copyBtn.getAttribute('data-ad-copy');
+            copyTextSafe(sid, 'Đã copy mã vị trí quảng cáo: ' + sid);
+            return;
+          }
+          const editBtn = e.target.closest('button[data-ad-edit]');
+          if (editBtn && state.isAdmin) {
+            e.preventDefault();
+            e.stopPropagation();
+            const sid = editBtn.getAttribute('data-ad-edit');
+            dom.settingsModal.classList.remove('hidden');
+            dom.settingsModal.classList.add('flex');
+            switchSettingsTab('ads');
+            populateAdSlotSelect(sid);
+          }
+        });
+
+        dom.btnTabApi.addEventListener('click', function () { switchSettingsTab('api'); });
+        dom.btnTabAds.addEventListener('click', function () { switchSettingsTab('ads'); });
+        dom.adSlotSelect.addEventListener('change', loadSelectedAdSlotForm);
+        dom.adTypeSelect.addEventListener('change', function () {
+          const t = dom.adTypeSelect.value;
+          dom.adBannerFields.classList.toggle('hidden', t !== 'banner');
+          dom.adHtmlFields.classList.toggle('hidden', t !== 'html');
+        });
+        dom.btnCopySlotId.addEventListener('click', function () {
+          const sid = dom.adSlotSelect.value;
+          if (sid) copyTextSafe(sid, 'Đã copy mã vị trí: ' + sid);
+        });
+        dom.btnCopyMonetagHead.addEventListener('click', function () {
+          const v = dom.inputMonetagVerify.value.trim();
+          const mt = dom.inputMonetagMultiTag.value.trim();
+          const ex = dom.inputMonetagVignette.value.trim();
+          const parts = [];
+          if (v) parts.push('<meta name="monetag" content="' + v + '">');
+          if (mt) parts.push(mt);
+          if (ex) parts.push(ex);
+          if (parts.length === 0) {
+            showToast('Chưa có mã Meta hoặc Script Monetag nào để sao chép.', 'warn');
+            return;
+          }
+          copyTextSafe(parts.join('\n'), 'Đã copy toàn bộ mã <head> Monetag!');
+        });
+        dom.btnSaveMonetag.addEventListener('click', async function () {
+          const cleanedVerify = cleanMonetagVerifyValue(dom.inputMonetagVerify.value);
+          dom.inputMonetagVerify.value = cleanedVerify;
+          state.adsConfig.monetag = {
+            enabled: Boolean(dom.chkMonetagMaster.checked),
+            preset: dom.monetagLayoutPreset.value || 'balanced',
+            verifyMeta: cleanedVerify,
+            smartLink: dom.inputMonetagSmartLink.value.trim(),
+            multiTag: dom.inputMonetagMultiTag.value.trim(),
+            extraTags: dom.inputMonetagVignette.value.trim()
+          };
+          state.adsConfig.showEmptyForGuests = Boolean(dom.chkShowEmptySlots.checked);
+          safeSetStorage('timnhac_ads_config', state.adsConfig);
+          injectMonetagGlobalTags();
+          renderAllAdSlots();
+          populateAdSlotSelect(dom.adSlotSelect.value);
+
+          dom.monetagSyncStatus.classList.remove('hidden');
+          dom.monetagSyncStatus.className = 'rounded-xl border border-cyanGlow/30 bg-cyanGlow/10 p-2.5 text-[11px] text-cyan-200 whitespace-pre-line';
+          dom.monetagSyncStatus.textContent = 'Đang lưu & đồng bộ cấu hình Monetag...';
+
+          const syncRes = await syncAdsConfigToServer();
+          if (syncRes.synced) {
+            dom.monetagSyncStatus.className = 'rounded-xl border border-emerald-400/40 bg-emerald-500/10 p-2.5 text-[11px] text-emerald-200 whitespace-pre-line';
+            dom.monetagSyncStatus.textContent = '✓ Đã lưu trên trình duyệt và đồng bộ lên máy chủ Railway thành công!\nBạn có thể bấm Verify trên Monetag ngay bây giờ.';
+            showToast('Đã lưu & đồng bộ Monetag lên máy chủ thành công!', 'success');
+          } else {
+            dom.monetagSyncStatus.className = 'rounded-xl border border-amber-400/40 bg-amber-500/10 p-2.5 text-[11px] text-amber-200 whitespace-pre-line';
+            dom.monetagSyncStatus.textContent = '✓ Đã lưu trên trình duyệt này.\n⚠ ' + syncRes.reason;
+            showToast('Đã lưu trên trình duyệt (chưa đồng bộ được lên server).', 'warn');
+          }
+        });
+
+        dom.btnTestMonetag.addEventListener('click', async function () {
+          dom.monetagSyncStatus.classList.remove('hidden');
+          dom.monetagSyncStatus.className = 'rounded-xl border border-cyanGlow/30 bg-cyanGlow/10 p-2.5 text-[11px] text-cyan-200 whitespace-pre-line';
+          dom.monetagSyncStatus.textContent = 'Đang kiểm tra kết nối backend & thẻ Monetag...';
+          const lines = [];
+          let ok = true;
+          const base = getEffectiveBackendBase();
+          if (base === null) {
+            ok = false;
+            lines.push('✕ Chưa kết nối Backend: Hãy mở trực tiếp link Railway (https://...up.railway.app) hoặc nhập URL Backend ở tab Kết nối API.');
+          } else {
+            try {
+              const hr = await fetch(base + '/api/health');
+              const hj = await hr.json();
+              if (hr.ok && hj && hj.status === 'ok') {
+                lines.push('✓ Backend Railway đang hoạt động (' + (hj.engine || 'ok') + ').');
+              } else {
+                ok = false;
+                lines.push('✕ Backend /api/health phản hồi lỗi HTTP ' + hr.status);
+              }
+            } catch (e) {
+              ok = false;
+              lines.push('✕ Không gọi được /api/health: ' + (e.message || 'Lỗi mạng'));
+            }
+            try {
+              const ar = await fetch(base + '/api/ads-config');
+              if (ar.ok) {
+                const aj = await ar.json();
+                const hasMeta = Boolean(aj && aj.config && aj.config.monetag && aj.config.monetag.verifyMeta);
+                const hasLink = Boolean(aj && aj.config && aj.config.monetag && aj.config.monetag.smartLink);
+                const hasTag = Boolean(aj && aj.config && aj.config.monetag && (aj.config.monetag.multiTag || aj.config.monetag.extraTags));
+                lines.push('✓ Endpoint /api/ads-config sẵn sàng (Meta: ' + (hasMeta ? 'Có' : 'Chưa') + ' | SmartLink: ' + (hasLink ? 'Có' : 'Chưa') + ' | Script: ' + (hasTag ? 'Có' : 'Chưa') + ').');
+              } else {
+                ok = false;
+                lines.push('✕ Máy chủ chưa có /api/ads-config (HTTP ' + ar.status + ') — Hãy cập nhật file server.py mới nhất lên GitHub/Railway.');
+              }
+            } catch (e2) {
+              ok = false;
+              lines.push('✕ Lỗi kiểm tra /api/ads-config: ' + (e2.message || 'Lỗi mạng'));
+            }
+          }
+          dom.monetagSyncStatus.className = ok
+            ? 'rounded-xl border border-emerald-400/40 bg-emerald-500/10 p-2.5 text-[11px] text-emerald-200 whitespace-pre-line'
+            : 'rounded-xl border border-ytRed/50 bg-ytRed/10 p-2.5 text-[11px] text-rose-200 whitespace-pre-line';
+          dom.monetagSyncStatus.textContent = lines.join('\n');
+        });
+        dom.btnSaveSlotAd.addEventListener('click', async function () {
+          const sid = dom.adSlotSelect.value;
+          if (!sid) return;
+          if (!state.adsConfig.slots) state.adsConfig.slots = {};
+          state.adsConfig.slots[sid] = {
+            enabled: Boolean(dom.chkAdEnabled.checked),
+            type: dom.adTypeSelect.value,
+            imgUrl: dom.inputAdImgUrl.value.trim(),
+            linkUrl: dom.inputAdLinkUrl.value.trim(),
+            label: dom.inputAdLabel.value.trim(),
+            html: dom.inputAdHtmlCode.value.trim()
+          };
+          safeSetStorage('timnhac_ads_config', state.adsConfig);
+          renderAllAdSlots();
+          populateAdSlotSelect(sid);
+          await syncAdsConfigToServer();
+          showToast('Đã lưu cấu hình vị trí: ' + sid, 'success');
+        });
+        dom.btnClearSlotAd.addEventListener('click', async function () {
+          const sid = dom.adSlotSelect.value;
+          if (sid && state.adsConfig.slots && state.adsConfig.slots[sid]) {
+            delete state.adsConfig.slots[sid];
+            safeSetStorage('timnhac_ads_config', state.adsConfig);
+            renderAllAdSlots();
+            populateAdSlotSelect(sid);
+            await syncAdsConfigToServer();
+            showToast('Đã đưa vị trí ' + sid + ' về chế độ tự động.', 'info');
+          }
+        });
+        dom.btnAddCustomSlot.addEventListener('click', function () {
+          const rawName = dom.inputNewSlotName.value.trim();
+          if (!rawName) {
+            showToast('Hãy nhập tên vị trí quảng cáo mới!', 'warn');
+            return;
+          }
+          const slug = 'custom_' + normalizeVi(rawName).replace(/\s+/g, '_').slice(0, 24) + '_' + String(Date.now()).slice(-4);
+          if (!state.adsConfig.customSlots) state.adsConfig.customSlots = [];
+          state.adsConfig.customSlots.push({ id: slug, name: rawName });
+          dom.inputNewSlotName.value = '';
+          safeSetStorage('timnhac_ads_config', state.adsConfig);
+          renderAllAdSlots();
+          populateAdSlotSelect(slug);
+          showToast('Đã thêm vị trí quảng cáo mới: ' + slug, 'success');
+        });
+
+        dom.btnAdminOpen.addEventListener('click', function () {
+          dom.adminLoginError.classList.add('hidden');
+          dom.inputAdminUser.value = '';
+          dom.inputAdminPass.value = '';
+          dom.adminLoginModal.classList.remove('hidden');
+          dom.adminLoginModal.classList.add('flex');
+        });
+        dom.btnAdminClose.addEventListener('click', function () {
+          dom.adminLoginModal.classList.add('hidden');
+          dom.adminLoginModal.classList.remove('flex');
+        });
+        dom.adminLoginModal.addEventListener('click', function (e) {
+          if (e.target === dom.adminLoginModal) {
+            dom.adminLoginModal.classList.add('hidden');
+            dom.adminLoginModal.classList.remove('flex');
+          }
+        });
+        dom.adminLoginForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          const u = dom.inputAdminUser.value.trim();
+          const p = dom.inputAdminPass.value;
+          if (u.toLowerCase() === String(state.adminCreds.user || '').toLowerCase() && p.trim().toLowerCase() === String(state.adminCreds.pass || '').trim().toLowerCase()) {
+            state.isAdmin = true;
+            safeSetStorage('timnhac_admin_session', true);
+            updateAdminUI();
+            dom.adminLoginModal.classList.add('hidden');
+            dom.adminLoginModal.classList.remove('flex');
+            showToast('Đăng nhập Quản trị viên thành công! Mục Cài đặt API đã được mở.', 'success');
+          } else {
+            dom.adminLoginError.textContent = 'Sai tên đăng nhập hoặc mật khẩu quản trị viên.';
+            dom.adminLoginError.classList.remove('hidden');
+          }
+        });
+        dom.btnAdminLogout.addEventListener('click', function () {
+          state.isAdmin = false;
+          safeSetStorage('timnhac_admin_session', false);
+          updateAdminUI();
+          dom.settingsModal.classList.add('hidden');
+          dom.settingsModal.classList.remove('flex');
+          showToast('Đã đăng xuất khỏi chế độ Quản trị viên.', 'info');
+        });
+
+        dom.btnCloseBottomAd.addEventListener('click', function () {
+          dom.bottomStickyAd.classList.add('hidden');
+        });
+
+        // Audio Converter Logic (Browser WAV/WebM + Backend FFmpeg for MP3/M4A/FLAC/OGG)
+        function formatBytes(bytes) {
+          if (!bytes) return '0 B';
+          if (bytes < 1024) return bytes + ' B';
+          if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+          return (bytes / 1048576).toFixed(2) + ' MB';
+        }
+
+        function setConverterFile(file, label) {
+          if (!file) return;
+          state.convFile = file;
+          const url = URL.createObjectURL(file);
+          dom.convFileName.textContent = label || file.name || 'audio_clip.webm';
+          dom.convFileMeta.textContent = formatBytes(file.size) + ' • ' + (file.type || 'audio');
+          dom.convSourcePlayer.src = url;
+          dom.convFileInfo.classList.remove('hidden');
+          dom.convStatusBox.classList.add('hidden');
+        }
+
+        dom.convFileInput.addEventListener('change', function () {
+          if (dom.convFileInput.files && dom.convFileInput.files[0]) {
+            setConverterFile(dom.convFileInput.files[0]);
+          }
+        });
+        dom.convDropzone.addEventListener('dragover', function (e) {
+          e.preventDefault();
+          dom.convDropzone.classList.add('border-cyanGlow', 'bg-cyanGlow/10');
+        });
+        dom.convDropzone.addEventListener('dragleave', function () {
+          dom.convDropzone.classList.remove('border-cyanGlow', 'bg-cyanGlow/10');
+        });
+        dom.convDropzone.addEventListener('drop', function (e) {
+          e.preventDefault();
+          dom.convDropzone.classList.remove('border-cyanGlow', 'bg-cyanGlow/10');
+          if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+            setConverterFile(e.dataTransfer.files[0]);
+          }
+        });
+
+        dom.btnLoadRecordedToConv.addEventListener('click', function () {
+          if (!state.recordedChunks || state.recordedChunks.length === 0) {
+            showToast('Chưa có đoạn thu âm nào. Hãy bấm "Bắt đầu nghe" trước nhé!', 'info');
+            return;
+          }
+          const blob = new Blob(state.recordedChunks, { type: 'audio/webm' });
+          setConverterFile(blob, 'ban_thu_am_tim_nhac.webm');
+          showToast('Đã nạp đoạn vừa thu âm vào bộ chuyển đổi!', 'success');
+        });
+
+        async function encodeAudioBufferToWav(audioBuf, targetRate, targetChannels, trimStart, trimEnd, normalize) {
+          const startSec = Math.max(0, Number(trimStart) || 0);
+          const rawEnd = Number(trimEnd);
+          const endSec = (rawEnd && rawEnd > startSec) ? Math.min(audioBuf.duration, rawEnd) : audioBuf.duration;
+          const dur = Math.max(0.1, endSec - startSec);
+          const numCh = targetChannels === 1 ? 1 : Math.min(2, audioBuf.numberOfChannels || 1);
+          const numFrames = Math.max(1, Math.ceil(dur * targetRate));
+          const offCtx = new OfflineAudioContext(numCh, numFrames, targetRate);
+          const src = offCtx.createBufferSource();
+          src.buffer = audioBuf;
+          src.connect(offCtx.destination);
+          src.start(0, startSec, dur);
+          const rendered = await offCtx.startRendering();
+
+          let peak = 1;
+          if (normalize) {
+            peak = 0.0001;
+            for (let ch = 0; ch < numCh; ch++) {
+              const chData = rendered.getChannelData(ch);
+              for (let i = 0; i < chData.length; i++) {
+                const a = Math.abs(chData[i]);
+                if (a > peak) peak = a;
+              }
+            }
+          }
+          const gain = normalize ? (0.96 / peak) : 1;
+
+          const dataBytes = rendered.length * numCh * 2;
+          const wavBuf = new ArrayBuffer(44 + dataBytes);
+          const view = new DataView(wavBuf);
+          function wStr(off, str) {
+            for (let i = 0; i < str.length; i++) view.setUint8(off + i, str.charCodeAt(i));
+          }
+          wStr(0, 'RIFF');
+          view.setUint32(4, 36 + dataBytes, true);
+          wStr(8, 'WAVE');
+          wStr(12, 'fmt ');
+          view.setUint32(16, 16, true);
+          view.setUint16(20, 1, true);
+          view.setUint16(22, numCh, true);
+          view.setUint32(24, targetRate, true);
+          view.setUint32(28, targetRate * numCh * 2, true);
+          view.setUint16(32, numCh * 2, true);
+          view.setUint16(34, 16, true);
+          wStr(36, 'data');
+          view.setUint32(40, dataBytes, true);
+
+          let offset = 44;
+          const channels = [];
+          for (let ch = 0; ch < numCh; ch++) channels.push(rendered.getChannelData(ch));
+          for (let i = 0; i < rendered.length; i++) {
+            for (let ch = 0; ch < numCh; ch++) {
+              const sample = Math.max(-1, Math.min(1, channels[ch][i] * gain));
+              view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+              offset += 2;
+            }
+          }
+          return new Blob([wavBuf], { type: 'audio/wav' });
+        }
+
+        dom.btnConvertAudio.addEventListener('click', async function () {
+          if (!state.convFile) {
+            showToast('Hãy chọn hoặc kéo thả một file âm thanh trước!', 'warn');
+            return;
+          }
+          const fmt = dom.convFormatSelect.value;
+          const rate = parseInt(dom.convSampleRate.value, 10) || 44100;
+          const ch = parseInt(dom.convChannels.value, 10) || 2;
+          const tStart = parseFloat(dom.convTrimStart.value) || 0;
+          const tEnd = parseFloat(dom.convTrimEnd.value) || 0;
+          const norm = Boolean(dom.convNormalize.checked);
+
+          dom.convStatusBox.classList.remove('hidden');
+          dom.convOutputPlayer.classList.add('hidden');
+          dom.convDownloadLink.classList.add('hidden');
+          dom.convStatusText.className = 'font-semibold text-cyan-200';
+          dom.convStatusText.textContent = 'Đang chuyển đổi sang ' + fmt.toUpperCase() + '...';
+          dom.convOutSize.textContent = '';
+
+          const baseName = (dom.convFileName.textContent || 'audio').replace(/\.[^.]+$/, '');
+          const backendConvEndpoint = state.apiKeys.useSameOriginShazam
+            ? '/api/convert'
+            : (state.apiKeys.shazamUrl ? state.apiKeys.shazamUrl.replace(/\/+$/, '') + '/api/convert' : '');
+
+          // Use FFmpeg backend when configured (supports ALL formats: MP3, M4A, FLAC, OGG, WAV, WEBM)
+          if (backendConvEndpoint && (fmt === 'mp3' || fmt === 'm4a' || fmt === 'flac' || fmt === 'ogg' || fmt === 'webm')) {
+            try {
+              const fd = new FormData();
+              fd.append('file', state.convFile, dom.convFileName.textContent || 'input.audio');
+              fd.append('target_format', fmt);
+              fd.append('sample_rate', String(rate));
+              fd.append('channels', String(ch));
+              fd.append('trim_start', String(tStart));
+              if (tEnd > tStart) fd.append('trim_end', String(tEnd));
+              fd.append('normalize', norm ? '1' : '0');
+              const resp = await fetch(backendConvEndpoint, { method: 'POST', body: fd });
+              if (!resp.ok) {
+                const errTxt = await resp.text();
+                throw new Error(errTxt || ('HTTP ' + resp.status));
+              }
+              const outBlob = await resp.blob();
+              if (state.convOutputUrl) URL.revokeObjectURL(state.convOutputUrl);
+              state.convOutputUrl = URL.createObjectURL(outBlob);
+              dom.convStatusText.className = 'font-semibold text-emerald-300';
+              dom.convStatusText.textContent = 'Chuyển đổi FFmpeg sang ' + fmt.toUpperCase() + ' thành công!';
+              dom.convOutSize.textContent = formatBytes(outBlob.size);
+              dom.convOutputPlayer.src = state.convOutputUrl;
+              dom.convOutputPlayer.classList.remove('hidden');
+              dom.convDownloadLink.href = state.convOutputUrl;
+              dom.convDownloadLink.download = baseName + '.' + fmt;
+              dom.convDownloadLink.classList.remove('hidden');
+              showToast('Chuyển đổi sang ' + fmt.toUpperCase() + ' hoàn tất!', 'success');
+              return;
+            } catch (bErr) {
+              if (fmt !== 'wav' && fmt !== 'webm') {
+                dom.convStatusText.className = 'font-semibold text-amber-200';
+                dom.convStatusText.textContent = 'Định dạng ' + fmt.toUpperCase() + ' cần Backend FFmpeg đang chạy. Đang tự chuyển đổi sang WAV ngay trên trình duyệt...';
+              }
+            }
+          }
+
+          // Pure browser-side conversion (WAV 16-bit PCM always works offline in browser)
+          try {
+            const arr = await state.convFile.arrayBuffer();
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioCtx();
+            const decoded = await ctx.decodeAudioData(arr.slice(0));
+            try { ctx.close(); } catch (e) {}
+            const wavBlob = await encodeAudioBufferToWav(decoded, rate, ch, tStart, tEnd, norm);
+            if (state.convOutputUrl) URL.revokeObjectURL(state.convOutputUrl);
+            state.convOutputUrl = URL.createObjectURL(wavBlob);
+            const finalExt = 'wav';
+            dom.convStatusText.className = 'font-semibold text-emerald-300';
+            dom.convStatusText.textContent = (fmt === 'wav')
+              ? 'Chuyển đổi sang WAV (16-bit PCM) thành công!'
+              : 'Đã chuyển đổi sang WAV trên trình duyệt (để xuất ' + fmt.toUpperCase() + ', Quản trị viên hãy kết nối Backend FFmpeg).';
+            dom.convOutSize.textContent = formatBytes(wavBlob.size);
+            dom.convOutputPlayer.src = state.convOutputUrl;
+            dom.convOutputPlayer.classList.remove('hidden');
+            dom.convDownloadLink.href = state.convOutputUrl;
+            dom.convDownloadLink.download = baseName + '.' + finalExt;
+            dom.convDownloadLink.classList.remove('hidden');
+            showToast('Chuyển đổi Audio hoàn tất!', 'success');
+          } catch (cErr) {
+            dom.convStatusText.className = 'font-semibold text-rose-300';
+            dom.convStatusText.textContent = 'Trình duyệt không giải mã được định dạng này (' + (cErr.message || 'Lỗi codec') + '). Hãy kết nối Backend FFmpeg để chuyển đổi mọi định dạng.';
+            showToast('Không thể giải mã file này trực tiếp trên trình duyệt.', 'error');
+          }
+        });
+
+        dom.btnConvRecognize.addEventListener('click', async function () {
+          if (!state.convFile) return;
+          const shazamEp = state.apiKeys.useSameOriginShazam
+            ? '/api/recognize'
+            : (state.apiKeys.shazamUrl ? state.apiKeys.shazamUrl.replace(/\/+$/, '') + '/api/recognize' : '');
+          if (!shazamEp && !state.apiKeys.auddToken) {
+            showToast('Chưa cấu hình Backend ShazamIO hoặc AudD.io trong Cài đặt API (dành cho Quản trị viên).', 'warn');
+            return;
+          }
+          showToast('Đang gửi file audio để nhận diện bài hát...', 'info');
+          try {
+            const wavBlob = await blobToWav(state.convFile);
+            const fd = new FormData();
+            let title = '', artist = '', query = '';
+            if (shazamEp) {
+              fd.append('file', wavBlob, 'upload.wav');
+              const r = await fetch(shazamEp, { method: 'POST', body: fd });
+              const j = await r.json();
+              if (r.ok && j.status === 'success' && j.title) {
+                title = j.title; artist = j.artist || ''; query = j.query || (title + ' ' + artist);
+              }
+            } else {
+              fd.append('api_token', state.apiKeys.auddToken);
+              fd.append('file', wavBlob, 'upload.wav');
+              const r = await fetch('https://api.audd.io/', { method: 'POST', body: fd });
+              const j = await r.json();
+              if (j.status === 'success' && j.result) {
+                title = j.result.title || ''; artist = j.result.artist || ''; query = title + (artist ? ' - ' + artist : '');
+              }
+            }
+            if (query) {
+              await finishRecognitionAndSearch({
+                mode: 'pc',
+                modeLabel: 'File Audio tải lên',
+                heardText: title + (artist ? ' - ' + artist : ''),
+                query: query,
+                keywords: extractKeywords(query),
+                notes: ['C4', 'E4', 'G4', 'A4', 'G4'],
+                freqs: [261.6, 329.6, 392.0, 440.0, 392.0],
+                contour: '↗ ↗ ↗ ↘',
+                bpm: 112,
+                confidence: 99,
+                duration: 10,
+                audioUrl: URL.createObjectURL(state.convFile),
+                timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+              });
+            } else {
+              showToast('Không nhận diện được bài hát từ file này.', 'warn');
+            }
+          } catch (e) {
+            showToast('Lỗi nhận diện từ file: ' + (e.message || 'Lỗi mạng'), 'error');
+          }
+        });
+
         dom.btnSettingsOpen.addEventListener('click', function () {
+          if (!state.isAdmin) {
+            showToast('Chỉ Quản trị viên mới được truy cập Cài đặt API.', 'warn');
+            return;
+          }
+          dom.inputNewAdminPass.value = '';
           dom.inputShazamUrl.value = state.apiKeys.shazamUrl || '';
           dom.chkSameOriginShazam.checked = Boolean(state.apiKeys.useSameOriginShazam);
           dom.inputYtApiKey.value = state.apiKeys.ytApiKey || '';
@@ -2392,8 +4034,31 @@
           state.apiKeys.useSameOriginShazam = Boolean(dom.chkSameOriginShazam.checked);
           state.apiKeys.ytApiKey = dom.inputYtApiKey.value.trim();
           state.apiKeys.auddToken = dom.inputAuddToken.value.trim();
+          const newPass = dom.inputNewAdminPass.value.trim();
+          if (newPass) {
+            state.adminCreds.pass = newPass;
+            safeSetStorage('timnhac_admin_creds_v2', state.adminCreds);
+            dom.inputNewAdminPass.value = '';
+          }
           safeSetStorage('soundtube_vn_keys', state.apiKeys);
-          updateApiStatusUI();
+          state.adminCreds = Object.assign({ user: 'Admin', pass: '824036' }, safeGetStorage('timnhac_admin_creds_v2', {}));
+        state.isAdmin = Boolean(safeGetStorage('timnhac_admin_session', false));
+        const savedAds = safeGetStorage('timnhac_ads_config', {}) || {};
+        state.adsConfig = {
+          showEmptyForGuests: Boolean(savedAds.showEmptyForGuests),
+          monetag: Object.assign({ enabled: true, preset: 'balanced', verifyMeta: '', smartLink: '', multiTag: '', extraTags: '' }, savedAds.monetag || {}),
+          slots: savedAds.slots || {},
+          customSlots: savedAds.customSlots || []
+        };
+        updateApiStatusUI();
+        if (state.isAdmin) {
+          dom.btnSettingsOpen.classList.remove('hidden');
+          dom.btnSettingsOpen.classList.add('flex');
+          dom.btnAdminLogout.classList.remove('hidden');
+          dom.btnAdminLogout.classList.add('flex');
+          dom.btnAdminOpen.classList.add('hidden');
+          dom.btnAdminOpen.classList.remove('inline-flex');
+        }
           dom.settingsModal.classList.add('hidden');
           dom.settingsModal.classList.remove('flex');
           showToast('Đã lưu cài đặt API thành công!', 'success');
@@ -2516,6 +4181,8 @@
           }
         });
 
+        state._renderAds = renderAllAdSlots;
+
         document.addEventListener('keydown', function (e) {
           if (e.key === 'Escape') {
             closePlayerModal();
@@ -2530,10 +4197,19 @@
         state.history = safeGetStorage('soundtube_vn_history', []);
         state.apiKeys = Object.assign({ ytApiKey: '', auddToken: '', shazamUrl: '', useSameOriginShazam: false }, safeGetStorage('soundtube_vn_keys', {}));
         updateApiStatusUI();
-        setMode('pc');
+        const isMobileInit = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
+        if (isMobileInit) {
+          if (dom.pcModeTabLabel) dom.pcModeTabLabel.textContent = 'Nhạc loa ngoài';
+          MODE_INFO.pc.label = 'Nhạc loa ngoài';
+          MODE_INFO.pc.hint = 'Đưa điện thoại lại gần loa ngoài, TV hoặc nguồn nhạc đang phát trong 8–12 giây để nhận diện bài hát tự động.';
+          setMode('mic');
+        } else {
+          setMode('pc');
+        }
         updateCategoryPills();
         renderHistory();
         bindEvents();
+        if (state._renderAds) state._renderAds();
         lucide.createIcons();
         drawIdleWave();
 
